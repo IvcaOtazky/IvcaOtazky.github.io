@@ -73,11 +73,16 @@ button {
 
 /* --- the N | shades / of | Ivča quadrant ---------------------------------- */
 /* A true cross: the two rules are 1px grid tracks of their own, so they stay
-   exactly between the words however wide the words happen to be. */
+   exactly between the words however wide the words happen to be.
+
+   The columns start out sized to their content; once the script has measured
+   them it keeps setting them in pixels, which is what lets the cross glide to
+   its new place instead of jumping there when a word changes length. */
 .title {
   display: grid;
   grid-template-columns: max-content 1px max-content;
   grid-template-rows: max-content 1px max-content;
+  transition: grid-template-columns .55s var(--ease-out);
   column-gap: clamp(.55rem, 1.7vw, 1.3rem);
   row-gap: clamp(.05rem, .4vw, .25rem);
   font-family: var(--serif);
@@ -93,9 +98,13 @@ button {
 }
 
 .title-count  { grid-area: 1 / 1; justify-self: end;   font-variant-numeric: tabular-nums; }
-.title-shades { grid-area: 1 / 3; justify-self: start; font-style: italic; }
+.title-shades { grid-area: 1 / 3; justify-self: start; font-style: italic; color: var(--gray); }
 .title-of     { grid-area: 3 / 1; justify-self: end;   color: var(--gray); }
 .title-ivca   { grid-area: 3 / 3; justify-self: start; font-style: italic; }
+
+/* While the columns are being re-measured (first paint, a resize) they snap
+   straight to their new size — only a word actually changing deserves a glide. */
+.title-measuring { transition: none; }
 
 .title-rule { background: var(--rule); }
 
@@ -397,8 +406,8 @@ button {
     <span class="title-cell title-shades" id="shades-word">shades</span>
     <span class="title-rule title-rule-horizontal"></span>
     <span class="title-rule title-rule-vertical"></span>
-    <span class="title-cell title-of">of</span>
-    <span class="title-cell title-ivca">Ivča</span>
+    <span class="title-cell title-of" id="of-word">of</span>
+    <span class="title-cell title-ivca" id="ivca-word">Ivča</span>
   </h1>
 
   <div class="categories intro-fade-in delay-categories" id="category-list" role="group" aria-label="Kategorie otázek">
@@ -459,6 +468,8 @@ const questionPage     = document.getElementById("question-page");
 const titleElement     = document.getElementById("title");
 const countElement     = document.getElementById("selected-question-count");
 const shadesElement    = document.getElementById("shades-word");
+const ofElement        = document.getElementById("of-word");
+const ivcaElement      = document.getElementById("ivca-word");
 const categoryList     = document.getElementById("category-list");
 const startButton      = document.getElementById("start-button");
 const backButton       = document.getElementById("back-button");
@@ -489,10 +500,9 @@ function selectedCategorySlugs() {
 /* "shades" is only the opening word — every change of the count moves the title
    on to the next way of describing what the selected questions are. */
 const WORDS_FOR_QUESTIONS = [
-  "shades", "questions", "ponderings", "ideas", "wonders",
-  "thoughts", "riddles", "mysteries", "facets", "angles",
-  "layers", "moods", "secrets", "stories", "memories",
-  "musings", "glimpses", "whispers", "chapters", "notions"
+  "shades", "questions", "gems",
+  "thoughts", "riddles", "facets", "layers", 
+  "musings", "glimpses", 
 ];
 
 let currentWordIndex = 0;
@@ -504,7 +514,35 @@ function moveOnToTheNextWord() {
   shadesElement.classList.remove("word-changed");
   void shadesElement.offsetWidth;         /* restart the swap animation */
   shadesElement.classList.add("word-changed");
+
+  fitTitleColumnsToTheWords();
 }
+
+/* The cross sits on two 1px grid tracks, so its position is decided entirely by
+   how wide the outer columns are. Left to itself the grid resizes those columns
+   the instant a word changes and the cross snaps sideways; pinning them to
+   measured pixel widths instead lets the transition carry it across. Each cell
+   is sized to its own content (justify-self is never "stretch"), so a cell's own
+   width still reads as the width of its text however wide its column is. */
+function fitTitleColumnsToTheWords(withoutAnimating) {
+  const widthOf = element => element.getBoundingClientRect().width;
+  const left  = Math.max(widthOf(countElement), widthOf(ofElement));
+  const right = Math.max(widthOf(ivcaElement), widthOf(shadesElement));
+
+  if (withoutAnimating) titleElement.classList.add("title-measuring");
+  titleElement.style.gridTemplateColumns = left + "px 1px " + right + "px";
+  if (withoutAnimating) {
+    void titleElement.offsetWidth;        /* land on the new size before the
+                                             transition is switched back on */
+    titleElement.classList.remove("title-measuring");
+  }
+}
+
+/* The title is sized in viewport units and set in a webfont, so both a resize
+   and the font finally arriving change what the words measure. */
+fitTitleColumnsToTheWords(true);
+addEventListener("resize", () => fitTitleColumnsToTheWords(true));
+if (document.fonts) document.fonts.ready.then(() => fitTitleColumnsToTheWords(true));
 
 function refreshSelectedQuestionCount() {
   const selectedCount = questionsInCategories(selectedCategorySlugs()).length;

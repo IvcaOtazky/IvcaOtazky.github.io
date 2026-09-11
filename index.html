@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>31 shades of Ivča</title>
-<meta name="description" content="31 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
-<meta property="og:title" content="31 shades of Ivča">
-<meta property="og:description" content="31 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<title>2 shades of Ivča</title>
+<meta name="description" content="2 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta property="og:title" content="2 shades of Ivča">
+<meta property="og:description" content="2 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,11 +73,16 @@ button {
 
 /* --- the N | shades / of | Ivča quadrant ---------------------------------- */
 /* A true cross: the two rules are 1px grid tracks of their own, so they stay
-   exactly between the words however wide the words happen to be. */
+   exactly between the words however wide the words happen to be.
+
+   The columns start out sized to their content; once the script has measured
+   them it keeps setting them in pixels, which is what lets the cross glide to
+   its new place instead of jumping there when a word changes length. */
 .title {
   display: grid;
   grid-template-columns: max-content 1px max-content;
   grid-template-rows: max-content 1px max-content;
+  transition: grid-template-columns .55s var(--ease-out);
   column-gap: clamp(.55rem, 1.7vw, 1.3rem);
   row-gap: clamp(.05rem, .4vw, .25rem);
   font-family: var(--serif);
@@ -93,9 +98,13 @@ button {
 }
 
 .title-count  { grid-area: 1 / 1; justify-self: end;   font-variant-numeric: tabular-nums; }
-.title-shades { grid-area: 1 / 3; justify-self: start; font-style: italic; }
+.title-shades { grid-area: 1 / 3; justify-self: start; font-style: italic; color: var(--gray); }
 .title-of     { grid-area: 3 / 1; justify-self: end;   color: var(--gray); }
 .title-ivca   { grid-area: 3 / 3; justify-self: start; font-style: italic; }
+
+/* While the columns are being re-measured (first paint, a resize) they snap
+   straight to their new size — only a word actually changing deserves a glide. */
+.title-measuring { transition: none; }
 
 .title-rule { background: var(--rule); }
 
@@ -393,20 +402,17 @@ button {
 <main class="intro" id="intro-page">
 
   <h1 class="title title-animated" id="title">
-    <span class="title-cell title-count" id="selected-question-count">31</span>
+    <span class="title-cell title-count" id="selected-question-count">2</span>
     <span class="title-cell title-shades" id="shades-word">shades</span>
     <span class="title-rule title-rule-horizontal"></span>
     <span class="title-rule title-rule-vertical"></span>
-    <span class="title-cell title-of">of</span>
-    <span class="title-cell title-ivca">Ivča</span>
+    <span class="title-cell title-of" id="of-word">of</span>
+    <span class="title-cell title-ivca" id="ivca-word">Ivča</span>
   </h1>
 
   <div class="categories intro-fade-in delay-categories" id="category-list" role="group" aria-label="Kategorie otázek">
-    <button class="category" role="checkbox" aria-checked="true" data-slug="detstvi-a-koreny"><span class="category-box">[×]</span><span class="category-name">Dětství a kořeny</span><span class="category-count">6</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="vztahy"><span class="category-box">[×]</span><span class="category-name">Vztahy</span><span class="category-count">6</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="prace-a-sny"><span class="category-box">[×]</span><span class="category-name">Práce a sny</span><span class="category-count">6</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="hlouposti"><span class="category-box">[×]</span><span class="category-name">Hlouposti</span><span class="category-count">6</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="do-hloubky"><span class="category-box">[×]</span><span class="category-name">Do hloubky</span><span class="category-count">7</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="funky"><span class="category-box">[×]</span><span class="category-name">Funky</span><span class="category-count">1</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="externi"><span class="category-box">[×]</span><span class="category-name">Externí</span><span class="category-count">1</span></button>
   </div>
 
   <button class="start intro-fade-in delay-start" id="start-button">Start <span class="start-arrow">&rsaquo;</span></button>
@@ -459,261 +465,19 @@ button {
 const ALL_QUESTIONS = [
 {
 "id": "1",
-"text": "Jaká je tvoje nejstarší vzpomínka?",
-"notes": [
-"Nemusí to být nic velkého — stačí vůně, místo, jeden obrázek.",
-"Kolik ti v ní asi bylo a kdo v ní ještě je?"
-],
-"category": "detstvi-a-koreny",
-"categoryName": "Dětství a kořeny"
+"text": "Jaké jsou tvoje sexuální fantazie?",
+"notes": [],
+"category": "funky",
+"categoryName": "Funky"
 },
 {
 "id": "2",
-"text": "Po kom jsi zdědila nejvíc?",
+"text": "Jak se v čase měnilo tvoje vnímání sebe sama?",
 "notes": [
-"Může to být povaha, ruce, smích i něco, co bys radši vrátila."
+"Matěj"
 ],
-"category": "detstvi-a-koreny",
-"categoryName": "Dětství a kořeny"
-},
-{
-"id": "3",
-"text": "Co bylo doma samozřejmost, o čemž jsi až později zjistila, že samozřejmost není?",
-"notes": [
-"Každá rodina má svoje nepsané zákony. Který z nich sis nechala?"
-],
-"category": "detstvi-a-koreny",
-"categoryName": "Dětství a kořeny"
-},
-{
-"id": "4",
-"text": "Jaká jsi byla v deseti letech?",
-"notes": [
-"Kdyby se ta holka potkala s tebou dneska, co by si o tobě myslela?"
-],
-"category": "detstvi-a-koreny",
-"categoryName": "Dětství a kořeny"
-},
-{
-"id": "5",
-"text": "Které místo z dětství bys chtěla ještě jednou vidět?",
-"notes": [
-"A bojíš se, že by bylo menší, než si ho pamatuješ?"
-],
-"category": "detstvi-a-koreny",
-"categoryName": "Dětství a kořeny"
-},
-{
-"id": "6",
-"text": "Co ti kdysi říkali, že jsi, a tys tomu uvěřila?",
-"notes": [
-"Platí to ještě dneska?"
-],
-"category": "detstvi-a-koreny",
-"categoryName": "Dětství a kořeny"
-},
-{
-"id": "7",
-"text": "Kdy jsi naposledy někomu odpustila?",
-"notes": [
-"Bylo to rozhodnutí, nebo se to stalo samo?"
-],
-"category": "vztahy",
-"categoryName": "Vztahy"
-},
-{
-"id": "8",
-"text": "Co potřebuješ od lidí, ale skoro nikdy si o to neřekneš?",
-"notes": [
-"Zkus si domyslet, proč zrovna o tohle je tak těžké požádat."
-],
-"category": "vztahy",
-"categoryName": "Vztahy"
-},
-{
-"id": "9",
-"text": "Kdo tě zná nejlíp a co o tobě neví ani on?",
-"notes": [],
-"category": "vztahy",
-"categoryName": "Vztahy"
-},
-{
-"id": "10",
-"text": "Jaký rozchod nebo konec přátelství tě naučil nejvíc?",
-"notes": [
-"Co bys dneska udělala jinak — a co stejně?"
-],
-"category": "vztahy",
-"categoryName": "Vztahy"
-},
-{
-"id": "11",
-"text": "Podle čeho poznáš, že si u někoho můžeš dovolit být unavená?",
-"notes": [],
-"category": "vztahy",
-"categoryName": "Vztahy"
-},
-{
-"id": "12",
-"text": "Komu bys měla zavolat a odkládáš to?",
-"notes": [
-"Co by se stalo, kdybys to udělala hned po téhle otázce?"
-],
-"category": "vztahy",
-"categoryName": "Vztahy"
-},
-{
-"id": "13",
-"text": "Co bys dělala, kdyby ti nikdo neměl co říct?",
-"notes": [
-"Bez platu, bez názorů, bez toho, aby to k něčemu bylo."
-],
-"category": "prace-a-sny",
-"categoryName": "Práce a sny"
-},
-{
-"id": "14",
-"text": "Kdy jsi naposledy byla na něco opravdu hrdá?",
-"notes": [
-"A řekla jsi to někomu nahlas?"
-],
-"category": "prace-a-sny",
-"categoryName": "Práce a sny"
-},
-{
-"id": "15",
-"text": "Co děláš dobře, ale nepovažuješ to za dovednost?",
-"notes": [
-"Věci, které nám jdou snadno, si většinou nepočítáme."
-],
-"category": "prace-a-sny",
-"categoryName": "Práce a sny"
-},
-{
-"id": "16",
-"text": "Jaký plán jsi vzdala a ulevilo se ti?",
-"notes": [],
-"category": "prace-a-sny",
-"categoryName": "Práce a sny"
-},
-{
-"id": "17",
-"text": "Kdyby ti někdo dal rok volna a jednu podmínku — nesmíš odpočívat — co bys dělala?",
-"notes": [],
-"category": "prace-a-sny",
-"categoryName": "Práce a sny"
-},
-{
-"id": "18",
-"text": "Co bys chtěla umět za pět let, čemu se teď vyhýbáš?",
-"notes": [],
-"category": "prace-a-sny",
-"categoryName": "Práce a sny"
-},
-{
-"id": "19",
-"text": "Jaká je tvoje nejtrapnější oblíbená písnička?",
-"notes": [
-"Bez omlouvání, prosím."
-],
-"category": "hlouposti",
-"categoryName": "Hlouposti"
-},
-{
-"id": "20",
-"text": "Co si vždycky koupíš v obchodě navíc, i když to nepotřebuješ?",
-"notes": [],
-"category": "hlouposti",
-"categoryName": "Hlouposti"
-},
-{
-"id": "21",
-"text": "Kdybys musela jíst pět let jenom tři jídla, které to budou?",
-"notes": [
-"A po kolika měsících bys toho litovala?"
-],
-"category": "hlouposti",
-"categoryName": "Hlouposti"
-},
-{
-"id": "22",
-"text": "Jaký zbytečný talent máš?",
-"notes": [],
-"category": "hlouposti",
-"categoryName": "Hlouposti"
-},
-{
-"id": "23",
-"text": "Co ti nesmyslně leze na nervy?",
-"notes": [
-"Čím víc je to malicherné, tím lepší odpověď."
-],
-"category": "hlouposti",
-"categoryName": "Hlouposti"
-},
-{
-"id": "24",
-"text": "Jaké zvíře bys byla a jaké zvíře bys chtěla být?",
-"notes": [
-"Ty dvě odpovědi jsou obvykle jiné."
-],
-"category": "hlouposti",
-"categoryName": "Hlouposti"
-},
-{
-"id": "25",
-"text": "Čeho se bojíš, že o tobě lidi zjistí?",
-"notes": [
-"Na tuhle otázku se dá odpovědět i jen zpola."
-],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
-},
-{
-"id": "26",
-"text": "Kdy jsi naposledy plakala a proč doopravdy?",
-"notes": [],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
-},
-{
-"id": "27",
-"text": "Co by muselo zmizet z tvého života, aby se ti ulevilo?",
-"notes": [],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
-},
-{
-"id": "28",
-"text": "Jaká věta o tobě platí, i když bys chtěla, aby neplatila?",
-"notes": [],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
-},
-{
-"id": "29",
-"text": "Kdyby ti dneska někdo řekl, že máš rok, co bys přestala dělat?",
-"notes": [
-"Všimni si, že otázka není, co bys začala."
-],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
-},
-{
-"id": "30",
-"text": "Za co si sama sobě ještě dlužíš omluvu?",
-"notes": [
-"A co by muselo být splněno, abys ji přijala?"
-],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
-},
-{
-"id": "31",
-"text": "Co bys chtěla, aby si o tobě lidi pamatovali, až u toho nebudeš?",
-"notes": [],
-"category": "do-hloubky",
-"categoryName": "Do hloubky"
+"category": "externi",
+"categoryName": "Externí"
 }
 ];
 
@@ -722,6 +486,8 @@ const questionPage     = document.getElementById("question-page");
 const titleElement     = document.getElementById("title");
 const countElement     = document.getElementById("selected-question-count");
 const shadesElement    = document.getElementById("shades-word");
+const ofElement        = document.getElementById("of-word");
+const ivcaElement      = document.getElementById("ivca-word");
 const categoryList     = document.getElementById("category-list");
 const startButton      = document.getElementById("start-button");
 const backButton       = document.getElementById("back-button");
@@ -752,10 +518,9 @@ function selectedCategorySlugs() {
 /* "shades" is only the opening word — every change of the count moves the title
    on to the next way of describing what the selected questions are. */
 const WORDS_FOR_QUESTIONS = [
-  "shades", "questions", "ponderings", "ideas", "wonders",
-  "thoughts", "riddles", "mysteries", "facets", "angles",
-  "layers", "moods", "secrets", "stories", "memories",
-  "musings", "glimpses", "whispers", "chapters", "notions"
+  "shades", "questions", "gems",
+  "thoughts", "riddles", "facets", "layers", 
+  "musings", "glimpses", 
 ];
 
 let currentWordIndex = 0;
@@ -767,7 +532,35 @@ function moveOnToTheNextWord() {
   shadesElement.classList.remove("word-changed");
   void shadesElement.offsetWidth;         /* restart the swap animation */
   shadesElement.classList.add("word-changed");
+
+  fitTitleColumnsToTheWords();
 }
+
+/* The cross sits on two 1px grid tracks, so its position is decided entirely by
+   how wide the outer columns are. Left to itself the grid resizes those columns
+   the instant a word changes and the cross snaps sideways; pinning them to
+   measured pixel widths instead lets the transition carry it across. Each cell
+   is sized to its own content (justify-self is never "stretch"), so a cell's own
+   width still reads as the width of its text however wide its column is. */
+function fitTitleColumnsToTheWords(withoutAnimating) {
+  const widthOf = element => element.getBoundingClientRect().width;
+  const left  = Math.max(widthOf(countElement), widthOf(ofElement));
+  const right = Math.max(widthOf(ivcaElement), widthOf(shadesElement));
+
+  if (withoutAnimating) titleElement.classList.add("title-measuring");
+  titleElement.style.gridTemplateColumns = left + "px 1px " + right + "px";
+  if (withoutAnimating) {
+    void titleElement.offsetWidth;        /* land on the new size before the
+                                             transition is switched back on */
+    titleElement.classList.remove("title-measuring");
+  }
+}
+
+/* The title is sized in viewport units and set in a webfont, so both a resize
+   and the font finally arriving change what the words measure. */
+fitTitleColumnsToTheWords(true);
+addEventListener("resize", () => fitTitleColumnsToTheWords(true));
+if (document.fonts) document.fonts.ready.then(() => fitTitleColumnsToTheWords(true));
 
 function refreshSelectedQuestionCount() {
   const selectedCount = questionsInCategories(selectedCategorySlugs()).length;
