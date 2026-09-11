@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TOTAL_QUESTION_COUNT}} shades of Ivča</title>
+<meta name="description" content="{{TOTAL_QUESTION_COUNT}} otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta property="og:title" content="{{TOTAL_QUESTION_COUNT}} shades of Ivča">
+<meta property="og:description" content="{{TOTAL_QUESTION_COUNT}} otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------- palette */
+:root {
+  --blush:        #f7e4e1;
+  --blush-deep:   #f0d3cf;
+  --ink:          #171010;
+  --ink-soft:     rgba(23, 16, 16, .72);
+  --gray:         #83706c;
+  --gray-faint:   rgba(23, 16, 16, .42);
+  --rule:         rgba(23, 16, 16, .22);
+
+  --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --ease-out: cubic-bezier(.16, .84, .26, 1);
+}
+
+/* ------------------------------------------------------------------ reset */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--blush);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ============================================================== intro page */
+.intro {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 5vh, 3.2rem);
+  padding: clamp(2rem, 5vh, 3.5rem) 1.5rem;
+}
+
+/* --- the N | shades / of | Ivča quadrant ---------------------------------- */
+.title {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(1.1rem, 3.4vw, 2.6rem);
+  row-gap: clamp(.1rem, .8vw, .5rem);
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 16vw, 7.4rem);
+  line-height: .94;
+  margin: 0 0 -.12em;   /* pull the list up into the title's descender space */
+  letter-spacing: -.015em;
+}
+
+.title-cell {
+  display: block;
+  white-space: nowrap;
+}
+
+.title-count  { grid-area: 1 / 1; justify-self: end;   font-variant-numeric: tabular-nums; }
+.title-shades { grid-area: 1 / 2; justify-self: start; font-style: italic; }
+.title-of     { grid-area: 2 / 1; justify-self: end;   color: var(--gray); }
+.title-ivca   { grid-area: 2 / 2; justify-self: start; font-style: italic; }
+
+.title-rule {
+  position: absolute;
+  background: var(--rule);
+}
+.title-rule-horizontal {
+  left: 0; right: 0; top: 50%;
+  height: 1px;
+  transform: scaleX(0);
+}
+.title-rule-vertical {
+  top: 0; bottom: 0; left: 50%;
+  width: 1px;
+  transform: scaleY(0);
+}
+
+/* Each fragment arrives from its own side, on its own beat. */
+.title-animated .title-count  { animation: arrive-from-left   .95s var(--ease-out)  .05s both; }
+.title-animated .title-shades { animation: arrive-from-top    .95s var(--ease-out)  .22s both; }
+.title-animated .title-of     { animation: arrive-from-bottom .95s var(--ease-out)  .38s both; }
+.title-animated .title-ivca   { animation: arrive-from-right  .95s var(--ease-out)  .54s both; }
+.title-animated .title-rule-horizontal { animation: draw-horizontal .8s var(--ease-out) .30s both; }
+.title-animated .title-rule-vertical   { animation: draw-vertical   .8s var(--ease-out) .46s both; }
+
+@keyframes arrive-from-left   { from { opacity: 0; transform: translateX(-.75em); } to { opacity: 1; transform: none; } }
+@keyframes arrive-from-right  { from { opacity: 0; transform: translateX( .75em); } to { opacity: 1; transform: none; } }
+@keyframes arrive-from-top    { from { opacity: 0; transform: translateY(-.55em); } to { opacity: 1; transform: none; } }
+@keyframes arrive-from-bottom { from { opacity: 0; transform: translateY( .55em); } to { opacity: 1; transform: none; } }
+@keyframes draw-horizontal    { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes draw-vertical      { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* A soft pulse whenever the number of selected questions changes. */
+.title-count.count-changed { animation: count-pulse .45s var(--ease-out); }
+@keyframes count-pulse {
+  0%   { opacity: .25; transform: translateY(.12em); }
+  100% { opacity: 1;   transform: none; }
+}
+
+/* --- category checkboxes -------------------------------------------------- */
+.categories {
+  width: min(30rem, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+}
+
+.category {
+  display: flex;
+  align-items: baseline;
+  gap: .8rem;
+  width: 100%;
+  padding: .62rem .5rem;
+  text-align: left;
+  color: var(--gray);
+  font-size: 1.02rem;
+  border-radius: 3px;
+  transition: color .25s var(--ease-out), transform .25s var(--ease-out), background-color .25s var(--ease-out);
+}
+
+.category:hover { color: var(--ink); transform: translateX(4px); background: rgba(255, 255, 255, .35); }
+.category[aria-checked="true"] { color: var(--ink); }
+
+.category-box {
+  font-family: var(--sans);
+  font-size: .95rem;
+  letter-spacing: -.04em;
+  opacity: .55;
+  transition: opacity .25s var(--ease-out);
+}
+.category[aria-checked="true"] .category-box { opacity: 1; }
+
+.category-name { flex: 1; }
+
+.category-count {
+  font-size: .8rem;
+  color: var(--gray-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- start button --------------------------------------------------------- */
+.start {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.6rem, 4.5vw, 2.3rem);
+  color: var(--ink);
+  letter-spacing: .005em;
+  transition: color .3s var(--ease-out), transform .3s var(--ease-out), opacity .3s var(--ease-out);
+}
+
+.start-arrow {
+  display: inline-block;
+  transition: transform .3s var(--ease-out);
+}
+
+.start:hover:not([disabled]) { color: var(--gray); transform: translateX(10px); }
+.start:hover:not([disabled]) .start-arrow { transform: translateX(6px); }
+
+.start[disabled] { opacity: .3; cursor: not-allowed; }
+
+.intro-fade-in { animation: fade-up .8s var(--ease-out) both; }
+.intro-fade-in.delay-categories { animation-delay: .75s; }
+.intro-fade-in.delay-start      { animation-delay: .95s; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: none; } }
+
+/* When coming back from a question, the intro should simply be there. */
+.intro-instant *, .intro-instant { animation: none !important; }
+
+/* ========================================================== questions page */
+.reader {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.1rem, 3vw, 2rem);
+  gap: 1rem;
+}
+
+.reader-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem;
+  color: var(--gray);
+  transition: color .25s var(--ease-out), transform .25s var(--ease-out);
+}
+.icon-button:hover { color: var(--ink); }
+.back-button:hover { transform: translateX(-4px); }
+.share-button:hover { transform: translateY(-2px); }
+.icon-button svg { display: block; width: 20px; height: 20px; }
+
+.reader-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  padding: clamp(1rem, 5vh, 3rem) .25rem;
+  text-align: center;
+}
+
+.question-category {
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gray-faint);
+}
+
+.question-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(2.1rem, 5.4vw, 3.7rem);
+  line-height: 1.12;
+  letter-spacing: -.012em;
+  color: var(--gray);
+  max-width: 20ch;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.question-notes {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  max-width: 44ch;
+}
+
+.question-notes p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* Question changes slide in from the direction you travelled. */
+.enter-forward  { animation: enter-forward  .5s var(--ease-out) both; }
+.enter-backward { animation: enter-backward .5s var(--ease-out) both; }
+@keyframes enter-forward  { from { opacity: 0; transform: translateX( 2.2rem); } to { opacity: 1; transform: none; } }
+@keyframes enter-backward { from { opacity: 0; transform: translateX(-2.2rem); } to { opacity: 1; transform: none; } }
+
+/* --- dot navigation ------------------------------------------------------- */
+.reader-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.5rem, 2vw, 1.2rem);
+  padding-bottom: .5rem;
+}
+
+.nav-arrow {
+  display: inline-flex;
+  padding: .5rem;
+  color: var(--gray-faint);
+  transition: color .25s var(--ease-out), transform .25s var(--ease-out);
+}
+.nav-arrow:hover:not([disabled]) { color: var(--ink); }
+.nav-previous:hover:not([disabled]) { transform: translateX(-3px); }
+.nav-next:hover:not([disabled])     { transform: translateX(3px); }
+.nav-arrow[disabled] { opacity: .25; cursor: not-allowed; }
+.nav-arrow svg { width: 18px; height: 18px; display: block; }
+
+.nav-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: min(46rem, 100%);
+}
+
+.nav-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.6rem;
+  color: var(--gray-faint);
+  font-size: .68rem;
+  font-variant-numeric: tabular-nums;
+  transition: color .2s var(--ease-out), transform .2s var(--ease-out);
+}
+
+.nav-dot::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.nav-dot.is-milestone { width: 1.7rem; }
+.nav-dot.is-milestone::before { display: none; }
+.nav-dot.is-milestone::after { content: attr(data-label); }
+
+.nav-dot:hover { color: var(--ink); transform: translateY(-2px); }
+
+.nav-dot[aria-current="true"] { color: var(--ink); }
+.nav-dot[aria-current="true"]::before { width: 7px; height: 7px; }
+.nav-dot[aria-current="true"].is-milestone::after { font-weight: 500; }
+
+/* --- copied-link toast ---------------------------------------------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 2rem;
+  transform: translate(-50%, 1rem);
+  padding: .6rem 1.1rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--blush);
+  font-size: .85rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease-out), transform .3s var(--ease-out);
+}
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* ------------------------------------------------------------- small print */
+.footnote {
+  text-align: center;
+  font-size: .75rem;
+  color: var(--gray-faint);
+  letter-spacing: .02em;
+}
+
+@media (max-width: 30rem) {
+  .question-text { max-width: 14ch; }
+  .nav-dots { gap: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001s !important;
+    animation-delay: 0s !important;
+    transition-duration: .001s !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ intro page -->
+<main class="intro" id="intro-page">
+
+  <h1 class="title title-animated" id="title">
+    <span class="title-cell title-count" id="selected-question-count">{{TOTAL_QUESTION_COUNT}}</span>
+    <span class="title-cell title-shades">shades</span>
+    <span class="title-rule title-rule-horizontal"></span>
+    <span class="title-rule title-rule-vertical"></span>
+    <span class="title-cell title-of">of</span>
+    <span class="title-cell title-ivca">Ivča</span>
+  </h1>
+
+  <div class="categories intro-fade-in delay-categories" id="category-list" role="group" aria-label="Kategorie otázek">
+{{CATEGORY_CHECKBOXES}}
+  </div>
+
+  <button class="start intro-fade-in delay-start" id="start-button">Start <span class="start-arrow">&rsaquo;</span></button>
+
+</main>
+
+<!-- ======================================================== questions page -->
+<main class="reader" id="question-page" hidden>
+
+  <div class="reader-bar">
+    <button class="icon-button back-button" id="back-button" aria-label="Zpět na výběr kategorií">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <button class="icon-button share-button" id="share-button" aria-label="Sdílet odkaz na tuto otázku">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="2.6"/>
+        <circle cx="6" cy="12" r="2.6"/>
+        <circle cx="18" cy="19" r="2.6"/>
+        <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="reader-stage" id="question-stage" aria-live="polite"></div>
+
+  <nav class="reader-nav" aria-label="Navigace mezi otázkami">
+    <button class="nav-arrow nav-previous" id="previous-button" aria-label="Předchozí otázka">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <div class="nav-dots" id="navigation-dots"></div>
+    <button class="nav-arrow nav-next" id="next-button" aria-label="Další otázka">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </nav>
+
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+
+/* The build script injects every question from questions.md right here. */
+const ALL_QUESTIONS = {{QUESTION_DATA_JSON}};
+
+const introPage        = document.getElementById("intro-page");
+const questionPage     = document.getElementById("question-page");
+const titleElement     = document.getElementById("title");
+const countElement     = document.getElementById("selected-question-count");
+const categoryList     = document.getElementById("category-list");
+const startButton      = document.getElementById("start-button");
+const backButton       = document.getElementById("back-button");
+const shareButton      = document.getElementById("share-button");
+const questionStage    = document.getElementById("question-stage");
+const navigationDots   = document.getElementById("navigation-dots");
+const previousButton   = document.getElementById("previous-button");
+const nextButton       = document.getElementById("next-button");
+const toast            = document.getElementById("toast");
+
+const categoryButtons = Array.from(categoryList.querySelectorAll(".category"));
+
+/* Every question carries the slug of the category it came from, so a pool is
+   simply "the questions whose category is currently switched on". */
+function questionsInCategories(categorySlugs) {
+  if (categorySlugs.length === 0) return [];
+  return ALL_QUESTIONS.filter(question => categorySlugs.includes(question.category));
+}
+
+function selectedCategorySlugs() {
+  return categoryButtons
+    .filter(button => button.getAttribute("aria-checked") === "true")
+    .map(button => button.dataset.slug);
+}
+
+/* ------------------------------------------------------------- intro page */
+
+function refreshSelectedQuestionCount() {
+  const selectedCount = questionsInCategories(selectedCategorySlugs()).length;
+  startButton.disabled = selectedCount === 0;
+
+  const countAlreadyShown = countElement.textContent === String(selectedCount);
+  if (countAlreadyShown) return;
+
+  countElement.textContent = selectedCount;
+  countElement.classList.remove("count-changed");
+  void countElement.offsetWidth;          /* restart the pulse animation */
+  countElement.classList.add("count-changed");
+}
+
+function toggleCategory(categoryButton) {
+  const isNowChecked = categoryButton.getAttribute("aria-checked") !== "true";
+  categoryButton.setAttribute("aria-checked", String(isNowChecked));
+  categoryButton.querySelector(".category-box").textContent = isNowChecked ? "[×]" : "[ ]";
+  refreshSelectedQuestionCount();
+}
+
+categoryButtons.forEach(categoryButton => {
+  categoryButton.addEventListener("click", () => toggleCategory(categoryButton));
+});
+
+startButton.addEventListener("click", () => {
+  const pool = questionsInCategories(selectedCategorySlugs());
+  if (pool.length === 0) return;
+  goToQuestion(pool[0].id, selectedCategorySlugs());
+});
+
+/* ---------------------------------------------------------------- routing */
+
+/* A readable, shareable address: #q=12&c=detstvi,vztahy */
+function writeLocation(questionId, categorySlugs) {
+  const address = "#q=" + questionId + "&c=" + categorySlugs.join(",");
+  if (location.hash !== address) location.hash = address;
+}
+
+function readLocation() {
+  const parameters = new URLSearchParams(location.hash.replace(/^#/, ""));
+  if (!parameters.has("q")) return null;
+
+  const requestedCategories = (parameters.get("c") || "").split(",").filter(Boolean);
+  return {
+    questionId: parameters.get("q"),
+    categorySlugs: requestedCategories.length > 0 ? requestedCategories : allCategorySlugs()
+  };
+}
+
+function allCategorySlugs() {
+  return categoryButtons.map(button => button.dataset.slug);
+}
+
+function goToQuestion(questionId, categorySlugs) {
+  writeLocation(questionId, categorySlugs);
+  renderCurrentLocation();
+}
+
+function returnToIntro() {
+  introPage.classList.add("intro-instant");
+  titleElement.classList.remove("title-animated");
+  location.hash = "";
+  renderCurrentLocation();
+}
+
+/* ------------------------------------------------------------ reader page */
+
+let currentPool = [];
+let currentPosition = 0;
+
+function showQuestionAtPosition(position, travelDirection) {
+  const question = currentPool[position];
+  if (!question) return;
+
+  currentPosition = position;
+  writeLocation(question.id, currentPool.map(item => item.category).filter(uniqueValues));
+
+  questionStage.innerHTML = "";
+  const block = document.createElement("div");
+  block.className = travelDirection === "backward" ? "enter-backward" : "enter-forward";
+  block.style.display = "flex";
+  block.style.flexDirection = "column";
+  block.style.alignItems = "center";
+  block.style.gap = "1.6rem";
+
+  const categoryLabel = document.createElement("div");
+  categoryLabel.className = "question-category";
+  categoryLabel.textContent = question.categoryName;
+  block.appendChild(categoryLabel);
+
+  const questionText = document.createElement("h2");
+  questionText.className = "question-text";
+  questionText.textContent = question.text;
+  block.appendChild(questionText);
+
+  if (question.notes.length > 0) {
+    const notes = document.createElement("div");
+    notes.className = "question-notes";
+    question.notes.forEach(noteText => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = noteText;
+      notes.appendChild(paragraph);
+    });
+    block.appendChild(notes);
+  }
+
+  questionStage.appendChild(block);
+  renderNavigationDots();
+}
+
+function uniqueValues(value, index, array) {
+  return array.indexOf(value) === index;
+}
+
+function renderNavigationDots() {
+  navigationDots.innerHTML = "";
+
+  currentPool.forEach((question, position) => {
+    const humanNumber = position + 1;
+    const isMilestone = humanNumber % 5 === 0;
+
+    const dot = document.createElement("button");
+    dot.className = isMilestone ? "nav-dot is-milestone" : "nav-dot";
+    dot.dataset.label = humanNumber;
+    dot.setAttribute("aria-label", "Otázka " + humanNumber);
+    dot.title = question.text;
+    if (position === currentPosition) dot.setAttribute("aria-current", "true");
+
+    dot.addEventListener("click", () => {
+      showQuestionAtPosition(position, position < currentPosition ? "backward" : "forward");
+    });
+
+    navigationDots.appendChild(dot);
+  });
+
+  previousButton.disabled = currentPosition === 0;
+  nextButton.disabled = currentPosition === currentPool.length - 1;
+}
+
+function stepBy(offset) {
+  const target = currentPosition + offset;
+  if (target < 0 || target >= currentPool.length) return;
+  showQuestionAtPosition(target, offset < 0 ? "backward" : "forward");
+}
+
+previousButton.addEventListener("click", () => stepBy(-1));
+nextButton.addEventListener("click", () => stepBy(+1));
+backButton.addEventListener("click", returnToIntro);
+
+/* ------------------------------------------------------------------ share */
+
+async function shareCurrentQuestion() {
+  const question = currentPool[currentPosition];
+  const link = location.href;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: document.title, text: question.text, url: link });
+      return;
+    } catch (shareWasCancelled) {
+      return;
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast("Odkaz zkopírován");
+  } catch (clipboardIsUnavailable) {
+    showToast(link);
+  }
+}
+
+let toastTimer = null;
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2400);
+}
+
+shareButton.addEventListener("click", shareCurrentQuestion);
+
+/* -------------------------------------------------------- keyboard & swipe */
+
+document.addEventListener("keydown", event => {
+  if (questionPage.hidden) return;
+  if (event.key === "ArrowRight") stepBy(+1);
+  if (event.key === "ArrowLeft")  stepBy(-1);
+  if (event.key === "Escape")     returnToIntro();
+});
+
+let touchStartX = 0;
+questionPage.addEventListener("touchstart", event => {
+  touchStartX = event.changedTouches[0].clientX;
+}, { passive: true });
+
+questionPage.addEventListener("touchend", event => {
+  const travelled = event.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(travelled) < 60) return;
+  stepBy(travelled < 0 ? +1 : -1);
+}, { passive: true });
+
+/* ------------------------------------------------------------ page switch */
+
+function renderCurrentLocation() {
+  const destination = readLocation();
+
+  if (destination === null) {
+    questionPage.hidden = true;
+    introPage.hidden = false;
+    refreshSelectedQuestionCount();
+    return;
+  }
+
+  const pool = questionsInCategories(destination.categorySlugs);
+  const positionOfRequestedQuestion = pool.findIndex(question => question.id === destination.questionId);
+
+  /* A shared link may point at a question outside the remembered selection —
+     in that case we simply widen the pool to everything. */
+  if (positionOfRequestedQuestion === -1) {
+    currentPool = ALL_QUESTIONS;
+    currentPosition = ALL_QUESTIONS.findIndex(question => question.id === destination.questionId);
+    if (currentPosition === -1) { returnToIntro(); return; }
+  } else {
+    currentPool = pool;
+    currentPosition = positionOfRequestedQuestion;
+  }
+
+  syncCategoryButtonsTo(currentPool.map(question => question.category).filter(uniqueValues));
+
+  introPage.hidden = true;
+  questionPage.hidden = false;
+  showQuestionAtPosition(currentPosition, "forward");
+}
+
+function syncCategoryButtonsTo(categorySlugs) {
+  categoryButtons.forEach(button => {
+    const shouldBeChecked = categorySlugs.includes(button.dataset.slug);
+    button.setAttribute("aria-checked", String(shouldBeChecked));
+    button.querySelector(".category-box").textContent = shouldBeChecked ? "[×]" : "[ ]";
+  });
+}
+
+window.addEventListener("hashchange", renderCurrentLocation);
+
+refreshSelectedQuestionCount();
+renderCurrentLocation();
+</script>
+
+</body>
+</html>
