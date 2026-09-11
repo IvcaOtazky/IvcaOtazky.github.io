@@ -72,12 +72,14 @@ button {
 }
 
 /* --- the N | shades / of | Ivča quadrant ---------------------------------- */
+/* A true cross: the two rules are 1px grid tracks of their own, so they stay
+   exactly between the words however wide the words happen to be. */
 .title {
-  position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: clamp(1.1rem, 3.4vw, 2.6rem);
-  row-gap: clamp(.1rem, .8vw, .5rem);
+  grid-template-columns: max-content 1px max-content;
+  grid-template-rows: max-content 1px max-content;
+  column-gap: clamp(.55rem, 1.7vw, 1.3rem);
+  row-gap: clamp(.05rem, .4vw, .25rem);
   font-family: var(--serif);
   font-size: clamp(3.2rem, 16vw, 7.4rem);
   line-height: .94;
@@ -91,24 +93,16 @@ button {
 }
 
 .title-count  { grid-area: 1 / 1; justify-self: end;   font-variant-numeric: tabular-nums; }
-.title-shades { grid-area: 1 / 2; justify-self: start; font-style: italic; }
-.title-of     { grid-area: 2 / 1; justify-self: end;   color: var(--gray); }
-.title-ivca   { grid-area: 2 / 2; justify-self: start; font-style: italic; }
+.title-shades { grid-area: 1 / 3; justify-self: start; font-style: italic; }
+.title-of     { grid-area: 3 / 1; justify-self: end;   color: var(--gray); }
+.title-ivca   { grid-area: 3 / 3; justify-self: start; font-style: italic; }
 
-.title-rule {
-  position: absolute;
-  background: var(--rule);
-}
-.title-rule-horizontal {
-  left: 0; right: 0; top: 50%;
-  height: 1px;
-  transform: scaleX(0);
-}
-.title-rule-vertical {
-  top: 0; bottom: 0; left: 50%;
-  width: 1px;
-  transform: scaleY(0);
-}
+.title-rule { background: var(--rule); }
+
+/* The resting state of both rules is "drawn"; the entrance animation below is
+   what starts them at zero, so they are visible even when it never runs. */
+.title-rule-horizontal { grid-area: 2 / 1 / 3 / 4; height: 1px; }
+.title-rule-vertical   { grid-area: 1 / 2 / 4 / 3; width: 1px; }
 
 /* Each fragment arrives from its own side, on its own beat. */
 .title-animated .title-count  { animation: arrive-from-left   .95s var(--ease-out)  .05s both; }
@@ -125,11 +119,19 @@ button {
 @keyframes draw-horizontal    { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes draw-vertical      { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
-/* A soft pulse whenever the number of selected questions changes. */
+/* Whenever the number of selected questions changes, the count pulses up from
+   below and the word beside it drops in from above — the same two directions
+   they arrived from in the first place. */
 .title-count.count-changed { animation: count-pulse .45s var(--ease-out); }
 @keyframes count-pulse {
   0%   { opacity: .25; transform: translateY(.12em); }
   100% { opacity: 1;   transform: none; }
+}
+
+.title-shades.word-changed { animation: word-swap .55s var(--ease-out); }
+@keyframes word-swap {
+  0%   { opacity: 0; transform: translateY(-.32em); }
+  100% { opacity: 1; transform: none; }
 }
 
 /* --- category checkboxes -------------------------------------------------- */
@@ -156,7 +158,11 @@ button {
 .category:hover { color: var(--ink); transform: translateX(4px); background: rgba(255, 255, 255, .35); }
 .category[aria-checked="true"] { color: var(--ink); }
 
+/* A fixed width, so ticking a box never nudges the label sideways. */
 .category-box {
+  display: inline-block;
+  width: 1.5em;
+  text-align: center;
   font-family: var(--sans);
   font-size: .95rem;
   letter-spacing: -.04em;
@@ -198,8 +204,9 @@ button {
 .intro-fade-in.delay-start      { animation-delay: .95s; }
 @keyframes fade-up { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: none; } }
 
-/* When coming back from a question, the intro should simply be there. */
-.intro-instant *, .intro-instant { animation: none !important; }
+/* Coming back from a question, the staggered entrance would mean waiting for
+   the menu all over again — so the intro fades back in as a single piece. */
+.intro-returning { animation: fade-up .45s var(--ease-out) both; }
 
 /* ========================================================== questions page */
 .reader {
@@ -387,7 +394,7 @@ button {
 
   <h1 class="title title-animated" id="title">
     <span class="title-cell title-count" id="selected-question-count">31</span>
-    <span class="title-cell title-shades">shades</span>
+    <span class="title-cell title-shades" id="shades-word">shades</span>
     <span class="title-rule title-rule-horizontal"></span>
     <span class="title-rule title-rule-vertical"></span>
     <span class="title-cell title-of">of</span>
@@ -714,6 +721,7 @@ const introPage        = document.getElementById("intro-page");
 const questionPage     = document.getElementById("question-page");
 const titleElement     = document.getElementById("title");
 const countElement     = document.getElementById("selected-question-count");
+const shadesElement    = document.getElementById("shades-word");
 const categoryList     = document.getElementById("category-list");
 const startButton      = document.getElementById("start-button");
 const backButton       = document.getElementById("back-button");
@@ -741,6 +749,26 @@ function selectedCategorySlugs() {
 
 /* ------------------------------------------------------------- intro page */
 
+/* "shades" is only the opening word — every change of the count moves the title
+   on to the next way of describing what the selected questions are. */
+const WORDS_FOR_QUESTIONS = [
+  "shades", "questions", "ponderings", "ideas", "wonders",
+  "thoughts", "riddles", "mysteries", "facets", "angles",
+  "layers", "moods", "secrets", "stories", "memories",
+  "musings", "glimpses", "whispers", "chapters", "notions"
+];
+
+let currentWordIndex = 0;
+
+function moveOnToTheNextWord() {
+  currentWordIndex = (currentWordIndex + 1) % WORDS_FOR_QUESTIONS.length;
+  shadesElement.textContent = WORDS_FOR_QUESTIONS[currentWordIndex];
+
+  shadesElement.classList.remove("word-changed");
+  void shadesElement.offsetWidth;         /* restart the swap animation */
+  shadesElement.classList.add("word-changed");
+}
+
 function refreshSelectedQuestionCount() {
   const selectedCount = questionsInCategories(selectedCategorySlugs()).length;
   startButton.disabled = selectedCount === 0;
@@ -752,6 +780,8 @@ function refreshSelectedQuestionCount() {
   countElement.classList.remove("count-changed");
   void countElement.offsetWidth;          /* restart the pulse animation */
   countElement.classList.add("count-changed");
+
+  moveOnToTheNextWord();
 }
 
 function toggleCategory(categoryButton) {
@@ -800,10 +830,22 @@ function goToQuestion(questionId, categorySlugs) {
 }
 
 function returnToIntro() {
-  introPage.classList.add("intro-instant");
-  titleElement.classList.remove("title-animated");
   location.hash = "";
   renderCurrentLocation();
+}
+
+/* The entrance plays once, on the first load. Returning from a question drops
+   those classes — rather than switching animation off wholesale, which would
+   also silence the pulse on the question count. */
+const introEntranceElements = Array.from(introPage.querySelectorAll(".intro-fade-in"));
+
+function replaceIntroEntranceWithAQuickFade() {
+  titleElement.classList.remove("title-animated");
+  introEntranceElements.forEach(element => element.classList.remove("intro-fade-in"));
+
+  introPage.classList.remove("intro-returning");
+  void introPage.offsetWidth;            /* restart the fade on every return */
+  introPage.classList.add("intro-returning");
 }
 
 /* ------------------------------------------------------------ reader page */
@@ -949,8 +991,10 @@ function renderCurrentLocation() {
   const destination = readLocation();
 
   if (destination === null) {
+    const arrivingFromAQuestion = !questionPage.hidden;
     questionPage.hidden = true;
     introPage.hidden = false;
+    if (arrivingFromAQuestion) replaceIntroEntranceWithAQuickFade();
     refreshSelectedQuestionCount();
     return;
   }
