@@ -70,12 +70,21 @@ any reordering of `questions.md` and needs nothing from the page it opens on.
 or a decoded shared question. The screens are `<main>` elements toggled with the `hidden`
 property.
 
+The share and `+` actions belong to both screens rather than to the reader: the reader lays
+them out in its bar, and the intro pins the same pair (`.intro-actions`) to the very corner
+that bar would have put them in, out of its centred stack so the title stays in the middle of
+the page. There is therefore more than one of each button, which is why they are wired by
+class and not by id. Share asks the screen what it has to offer — the question packed into an
+`#s=` address, or, on the intro, the bare link to the page.
+
 The proposal form is the exception, and deliberately so: it is a third `<main>`, opened from
-the reader bar's `+` and closed straight back to the question underneath, **without touching
-the hash** — a half-written question is nothing to land on, share or reload into. So
-`renderCurrentLocation()` hides it unconditionally, which keeps the router the only thing that
-decides which screen is up, and the `keydown` handler gives the arrow keys to the form's
-textareas while it is open.
+either screen's `+` and closed straight back onto whichever one it covered up (remembered in
+`theScreenUnderTheProposalForm`), **without touching the hash** — a half-written question is
+nothing to land on, share or reload into. So `renderCurrentLocation()` hides it
+unconditionally, which keeps the router the only thing that decides which screen is up, and
+the `keydown` handler gives the arrow keys to the form's textareas while it is open. Closing
+back onto the intro replays its quick fade rather than its staggered arrival, which is the
+same thing `returnToIntro()` does.
 
 A shared question becomes a one-item `currentPool`, which is what reduces the bottom bar to a
 single dot and disables both arrows; it carries `isASharedQuestion` so that

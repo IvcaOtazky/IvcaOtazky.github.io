@@ -62,6 +62,7 @@ button {
 
 /* ============================================================== intro page */
 .intro {
+  position: relative;          /* the corner the two actions are pinned to */
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -244,11 +245,46 @@ button {
 .intro-fade-in { animation: fade-up .8s var(--ease-out) both; }
 .intro-fade-in.delay-categories { animation-delay: .75s; }
 .intro-fade-in.delay-start      { animation-delay: .95s; }
+.intro-fade-in.delay-actions    { animation-delay: 1.15s; }
 @keyframes fade-up { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: none; } }
 
 /* Coming back from a question, the staggered entrance would mean waiting for
    the menu all over again — so the intro fades back in as a single piece. */
 .intro-returning { animation: fade-up .45s var(--ease-out) both; }
+
+/* ================================ the two actions every page carries with it */
+/* Both screens offer the same pair — a link to whatever you are looking at, and
+   a question of your own — so neither belongs to the reader alone. */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem;
+  color: var(--gray);
+  transition: color .25s var(--ease-out), transform .25s var(--ease-out);
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: .1rem;
+}
+
+/* The reader keeps them in its bar; the intro has no bar, and putting one in
+   its centred stack would push the title off the middle of the page. So they
+   are pinned to exactly the corner the reader's bar would have placed them in:
+   the same inset, so they hold still when one screen becomes the other. */
+.intro-actions {
+  position: absolute;
+  top: clamp(1.1rem, 3vw, 2rem);
+  right: clamp(1.1rem, 3vw, 2rem);
+}
+
+.icon-button:hover { color: var(--ink); }
+.back-button:hover { transform: translateX(-4px); }
+.share-button:hover { transform: translateY(-2px); }
+.propose-button:hover { transform: rotate(90deg); }
+.icon-button svg { display: block; width: 20px; height: 20px; }
 
 /* ========================================================== questions page */
 .reader {
@@ -264,26 +300,6 @@ button {
   align-items: center;
   justify-content: space-between;
 }
-
-.icon-button {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .6rem;
-  color: var(--gray);
-  transition: color .25s var(--ease-out), transform .25s var(--ease-out);
-}
-.reader-actions {
-  display: flex;
-  align-items: center;
-  gap: .1rem;
-}
-
-.icon-button:hover { color: var(--ink); }
-.back-button:hover { transform: translateX(-4px); }
-.share-button:hover { transform: translateY(-2px); }
-.propose-button:hover { transform: rotate(90deg); }
-.icon-button svg { display: block; width: 20px; height: 20px; }
 
 .reader-stage {
   flex: 1;
@@ -623,6 +639,22 @@ button.proposal-label:hover .proposal-arrow,
 
   <button class="start intro-fade-in delay-start" id="start-button">Start <span class="start-arrow">&rsaquo;</span></button>
 
+  <div class="page-actions intro-actions intro-fade-in delay-actions">
+    <button class="icon-button share-button" aria-label="Sdílet odkaz na tuto stránku">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="2.6"/>
+        <circle cx="6" cy="12" r="2.6"/>
+        <circle cx="18" cy="19" r="2.6"/>
+        <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/>
+      </svg>
+    </button>
+    <button class="icon-button propose-button" aria-label="Navrhnout novou otázku">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5.5v13M5.5 12h13"/>
+      </svg>
+    </button>
+  </div>
+
 </main>
 
 <!-- ======================================================== questions page -->
@@ -634,8 +666,8 @@ button.proposal-label:hover .proposal-arrow,
         <path d="M15 5l-7 7 7 7"/>
       </svg>
     </button>
-    <div class="reader-actions">
-      <button class="icon-button share-button" id="share-button" aria-label="Sdílet odkaz na tuto otázku">
+    <div class="page-actions">
+      <button class="icon-button share-button" aria-label="Sdílet odkaz na tuto otázku">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="18" cy="5" r="2.6"/>
           <circle cx="6" cy="12" r="2.6"/>
@@ -643,7 +675,7 @@ button.proposal-label:hover .proposal-arrow,
           <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/>
         </svg>
       </button>
-      <button class="icon-button propose-button" id="propose-button" aria-label="Navrhnout novou otázku">
+      <button class="icon-button propose-button" aria-label="Navrhnout novou otázku">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 5.5v13M5.5 12h13"/>
         </svg>
@@ -804,7 +836,6 @@ const ivcaElement      = document.getElementById("ivca-word");
 const categoryList     = document.getElementById("category-list");
 const startButton      = document.getElementById("start-button");
 const backButton       = document.getElementById("back-button");
-const shareButton      = document.getElementById("share-button");
 const questionStage    = document.getElementById("question-stage");
 const navigationDots   = document.getElementById("navigation-dots");
 const previousButton   = document.getElementById("previous-button");
@@ -1104,14 +1135,30 @@ backButton.addEventListener("click", returnToIntro);
 
 /* ------------------------------------------------------------------ share */
 
-async function shareCurrentQuestion() {
-  const question = currentPool[currentPosition];
+/* Both screens can be shared, and what travels is whatever is on them: from the
+   reader, the question itself packed into an #s= address; from the intro, there
+   is no one question to carry, so it is simply the page — the bare link, with
+   no hash for the reader to land in. */
+function whatThisScreenShares() {
   const addressWithoutAHash = location.href.split("#")[0];
-  const link = addressWithoutAHash + addressOfSharedQuestion(question);
+  const weAreLookingAtAQuestion = introPage.hidden;
+
+  if (!weAreLookingAtAQuestion) {
+    /* The site's own description, rather than a second copy of it here. */
+    const siteDescription = document.querySelector('meta[name="description"]').content;
+    return { text: siteDescription, link: addressWithoutAHash };
+  }
+
+  const question = currentPool[currentPosition];
+  return { text: question.text, link: addressWithoutAHash + addressOfSharedQuestion(question) };
+}
+
+async function shareThisScreen() {
+  const shared = whatThisScreenShares();
 
   if (navigator.share) {
     try {
-      await navigator.share({ title: document.title, text: question.text, url: link });
+      await navigator.share({ title: document.title, text: shared.text, url: shared.link });
       return;
     } catch (shareWasCancelled) {
       return;
@@ -1119,10 +1166,10 @@ async function shareCurrentQuestion() {
   }
 
   try {
-    await navigator.clipboard.writeText(link);
+    await navigator.clipboard.writeText(shared.link);
     showToast("Odkaz zkopírován");
   } catch (clipboardIsUnavailable) {
-    showToast(link);
+    showToast(shared.link);
   }
 }
 
@@ -1134,7 +1181,11 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2400);
 }
 
-shareButton.addEventListener("click", shareCurrentQuestion);
+/* One pair of actions per screen, all doing the same thing — hence a class
+   rather than an id, and one listener each. */
+document.querySelectorAll(".share-button").forEach(button => {
+  button.addEventListener("click", shareThisScreen);
+});
 
 /* ------------------------------------------------- proposing a question */
 
@@ -1151,13 +1202,12 @@ shareButton.addEventListener("click", shareCurrentQuestion);
    proposal falls back to the mail draft. The key is not a secret: it can only be
    used to send to the inbox it was issued for, and this file is published. */
 const PROPOSAL_RELAY = "https://api.web3forms.com/submit";
-const PROPOSAL_RELAY_ACCESS_KEY = "";
+const PROPOSAL_RELAY_ACCESS_KEY = "c5b4d20a-3514-4c5a-9839-cdd6a58385d1";
 
 const PROPOSALS_ARE_SENT_TO = "mrazekmates@gmail.com";
 
 const proposalPage       = document.getElementById("proposal-page");
 const proposalForm       = document.getElementById("proposal-form");
-const proposeButton      = document.getElementById("propose-button");
 const proposalBackButton = document.getElementById("proposal-back-button");
 const categoryField      = document.getElementById("category-field");
 const categoryChoices    = document.getElementById("category-choices");
@@ -1173,18 +1223,33 @@ const sendButtonLabel    = document.getElementById("send-button-label");
 const sendProblem        = document.getElementById("send-problem");
 const mailDraftLink      = document.getElementById("mail-draft-link");
 
+/* The form can be reached from either screen, and since it is not a place in
+   the address there is nothing to return to but the screen it covered up. */
+let theScreenUnderTheProposalForm = introPage;
+
 function openProposalForm() {
-  questionPage.hidden = true;
+  theScreenUnderTheProposalForm = questionPage.hidden ? introPage : questionPage;
+  proposalBackButton.setAttribute("aria-label", theScreenUnderTheProposalForm === introPage
+    ? "Zpět na výběr kategorií"
+    : "Zpět na otázku");
+
+  theScreenUnderTheProposalForm.hidden = true;
   proposalPage.hidden = false;
   openEveryRowThatHasWordsInIt();
 }
 
 function closeProposalForm() {
   proposalPage.hidden = true;
-  questionPage.hidden = false;
+  theScreenUnderTheProposalForm.hidden = false;
+
+  /* Showing the intro again would otherwise replay its whole staggered arrival,
+     which is a long wait for a screen you were just looking at. */
+  if (theScreenUnderTheProposalForm === introPage) replaceIntroEntranceWithAQuickFade();
 }
 
-proposeButton.addEventListener("click", openProposalForm);
+document.querySelectorAll(".propose-button").forEach(button => {
+  button.addEventListener("click", openProposalForm);
+});
 proposalBackButton.addEventListener("click", closeProposalForm);
 
 /* --- opening a row ------------------------------------------------------- */
