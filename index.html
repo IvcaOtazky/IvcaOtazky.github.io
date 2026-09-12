@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2 shades of Ivča</title>
-<meta name="description" content="2 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
-<meta property="og:title" content="2 shades of Ivča">
-<meta property="og:description" content="2 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<title>5 shades of Ivča</title>
+<meta name="description" content="5 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta property="og:title" content="5 shades of Ivča">
+<meta property="og:description" content="5 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -402,7 +402,7 @@ button {
 <main class="intro" id="intro-page">
 
   <h1 class="title title-animated" id="title">
-    <span class="title-cell title-count" id="selected-question-count">2</span>
+    <span class="title-cell title-count" id="selected-question-count">5</span>
     <span class="title-cell title-shades" id="shades-word">shades</span>
     <span class="title-rule title-rule-horizontal"></span>
     <span class="title-rule title-rule-vertical"></span>
@@ -411,8 +411,9 @@ button {
   </h1>
 
   <div class="categories intro-fade-in delay-categories" id="category-list" role="group" aria-label="Kategorie otázek">
-    <button class="category" role="checkbox" aria-checked="true" data-slug="funky"><span class="category-box">[×]</span><span class="category-name">Funky</span><span class="category-count">1</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="externi"><span class="category-box">[×]</span><span class="category-name">Externí</span><span class="category-count">1</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="deep"><span class="category-box">[×]</span><span class="category-name">Deep</span><span class="category-count">1</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="funky"><span class="category-box">[×]</span><span class="category-name">Funky</span><span class="category-count">3</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="matej"><span class="category-box">[×]</span><span class="category-name">Matěj</span><span class="category-count">1</span></button>
   </div>
 
   <button class="start intro-fade-in delay-start" id="start-button">Start <span class="start-arrow">&rsaquo;</span></button>
@@ -465,19 +466,38 @@ button {
 const ALL_QUESTIONS = [
 {
 "id": "1",
+"text": "Sníš často během dne? Pokud ano, o čem?",
+"notes": [],
+"category": "deep",
+"categoryName": "Deep"
+},
+{
+"id": "2",
 "text": "Jaké jsou tvoje sexuální fantazie?",
 "notes": [],
 "category": "funky",
 "categoryName": "Funky"
 },
 {
-"id": "2",
+"id": "3",
+"text": "Může vůbec existovat altruismus?",
+"notes": [],
+"category": "funky",
+"categoryName": "Funky"
+},
+{
+"id": "4",
+"text": "Pokud by jsi měl možnost si uložit svět a kdykoliv se vrátit do současného bodu, co bys s tím dělal? Jak by se změnil svět kdyby tuhle možnost měli všichni?",
+"notes": [],
+"category": "funky",
+"categoryName": "Funky"
+},
+{
+"id": "5",
 "text": "Jak se v čase měnilo tvoje vnímání sebe sama?",
-"notes": [
-"Matěj"
-],
-"category": "externi",
-"categoryName": "Externí"
+"notes": [],
+"category": "matej",
+"categoryName": "Matěj"
 }
 ];
 
