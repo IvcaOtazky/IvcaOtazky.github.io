@@ -169,9 +169,9 @@ button {
 
 /* A fixed width, so ticking a box never nudges the label sideways. */
 .category-box {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
   width: 1.5em;
-  text-align: center;
   font-family: var(--sans);
   font-size: .95rem;
   letter-spacing: -.04em;
@@ -179,6 +179,39 @@ button {
   transition: opacity .25s var(--ease-out);
 }
 .category[aria-checked="true"] .category-box { opacity: 1; }
+
+/* The mark is its own element that is never added or removed, only drawn and
+   undrawn: it keeps its width either way, so the brackets around it hold still
+   while it animates. The two strokes are deliberately unequal and off-centre —
+   a cross scribbled by hand rather than a typeset glyph. */
+.category-mark {
+  align-self: center;
+  width: .78em;
+  height: .78em;
+  overflow: visible;                     /* the round cap of each stroke reaches past the viewBox */
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+}
+
+/* Each stroke is measured as one unit long (pathLength), so a dash offset of 1
+   parks it entirely outside itself — invisible — and 0 draws it fully. Sliding
+   between the two pulls the line out of its own starting point, which is what
+   reads as a pencil stroke. */
+.category-mark line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset .26s var(--ease-out);
+}
+
+/* Ticking draws the short stroke first, then the long one; unticking lifts the
+   pencil in the opposite order, so the mark never disappears both-ends-at-once. */
+.category[aria-checked="true"] .category-mark line { stroke-dashoffset: 0; }
+.category-mark .mark-stroke-short { transition-delay: .09s; }
+.category-mark .mark-stroke-long  { transition-delay: 0s; }
+.category[aria-checked="true"] .mark-stroke-short { transition-delay: 0s; }
+.category[aria-checked="true"] .mark-stroke-long  { transition-delay: .09s; }
 
 .category-name { flex: 1; }
 
@@ -561,8 +594,7 @@ function refreshSelectedQuestionCount() {
 
 function toggleCategory(categoryButton) {
   const isNowChecked = categoryButton.getAttribute("aria-checked") !== "true";
-  categoryButton.setAttribute("aria-checked", String(isNowChecked));
-  categoryButton.querySelector(".category-box").textContent = isNowChecked ? "[×]" : "[ ]";
+  categoryButton.setAttribute("aria-checked", String(isNowChecked));   /* the CSS draws and undraws the mark */
   refreshSelectedQuestionCount();
 }
 

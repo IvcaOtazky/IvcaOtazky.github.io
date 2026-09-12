@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>5 shades of Ivča</title>
-<meta name="description" content="5 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
-<meta property="og:title" content="5 shades of Ivča">
-<meta property="og:description" content="5 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<title>7 shades of Ivča</title>
+<meta name="description" content="7 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta property="og:title" content="7 shades of Ivča">
+<meta property="og:description" content="7 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -169,9 +169,9 @@ button {
 
 /* A fixed width, so ticking a box never nudges the label sideways. */
 .category-box {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
   width: 1.5em;
-  text-align: center;
   font-family: var(--sans);
   font-size: .95rem;
   letter-spacing: -.04em;
@@ -179,6 +179,39 @@ button {
   transition: opacity .25s var(--ease-out);
 }
 .category[aria-checked="true"] .category-box { opacity: 1; }
+
+/* The mark is its own element that is never added or removed, only drawn and
+   undrawn: it keeps its width either way, so the brackets around it hold still
+   while it animates. The two strokes are deliberately unequal and off-centre —
+   a cross scribbled by hand rather than a typeset glyph. */
+.category-mark {
+  align-self: center;
+  width: .78em;
+  height: .78em;
+  overflow: visible;                     /* the round cap of each stroke reaches past the viewBox */
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+}
+
+/* Each stroke is measured as one unit long (pathLength), so a dash offset of 1
+   parks it entirely outside itself — invisible — and 0 draws it fully. Sliding
+   between the two pulls the line out of its own starting point, which is what
+   reads as a pencil stroke. */
+.category-mark line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset .26s var(--ease-out);
+}
+
+/* Ticking draws the short stroke first, then the long one; unticking lifts the
+   pencil in the opposite order, so the mark never disappears both-ends-at-once. */
+.category[aria-checked="true"] .category-mark line { stroke-dashoffset: 0; }
+.category-mark .mark-stroke-short { transition-delay: .09s; }
+.category-mark .mark-stroke-long  { transition-delay: 0s; }
+.category[aria-checked="true"] .mark-stroke-short { transition-delay: 0s; }
+.category[aria-checked="true"] .mark-stroke-long  { transition-delay: .09s; }
 
 .category-name { flex: 1; }
 
@@ -402,7 +435,7 @@ button {
 <main class="intro" id="intro-page">
 
   <h1 class="title title-animated" id="title">
-    <span class="title-cell title-count" id="selected-question-count">5</span>
+    <span class="title-cell title-count" id="selected-question-count">7</span>
     <span class="title-cell title-shades" id="shades-word">shades</span>
     <span class="title-rule title-rule-horizontal"></span>
     <span class="title-rule title-rule-vertical"></span>
@@ -411,9 +444,9 @@ button {
   </h1>
 
   <div class="categories intro-fade-in delay-categories" id="category-list" role="group" aria-label="Kategorie otázek">
-    <button class="category" role="checkbox" aria-checked="true" data-slug="deep"><span class="category-box">[×]</span><span class="category-name">Deep</span><span class="category-count">1</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="funky"><span class="category-box">[×]</span><span class="category-name">Funky</span><span class="category-count">3</span></button>
-    <button class="category" role="checkbox" aria-checked="true" data-slug="matej"><span class="category-box">[×]</span><span class="category-name">Matěj</span><span class="category-count">1</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="deep"><span class="category-box">[<svg class="category-mark" viewBox="0 0 10 10" aria-hidden="true"><line class="mark-stroke-short" pathLength="1" x1="2.1" y1="2.4" x2="7.9" y2="7.8" /><line class="mark-stroke-long" pathLength="1" x1="8.4" y1="1.5" x2="1.4" y2="8.7" /></svg>]</span><span class="category-name">Deep</span><span class="category-count">2</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="funky"><span class="category-box">[<svg class="category-mark" viewBox="0 0 10 10" aria-hidden="true"><line class="mark-stroke-short" pathLength="1" x1="2.1" y1="2.4" x2="7.9" y2="7.8" /><line class="mark-stroke-long" pathLength="1" x1="8.4" y1="1.5" x2="1.4" y2="8.7" /></svg>]</span><span class="category-name">Funky</span><span class="category-count">4</span></button>
+    <button class="category" role="checkbox" aria-checked="true" data-slug="matej"><span class="category-box">[<svg class="category-mark" viewBox="0 0 10 10" aria-hidden="true"><line class="mark-stroke-short" pathLength="1" x1="2.1" y1="2.4" x2="7.9" y2="7.8" /><line class="mark-stroke-long" pathLength="1" x1="8.4" y1="1.5" x2="1.4" y2="8.7" /></svg>]</span><span class="category-name">Matěj</span><span class="category-count">1</span></button>
   </div>
 
   <button class="start intro-fade-in delay-start" id="start-button">Start <span class="start-arrow">&rsaquo;</span></button>
@@ -473,27 +506,43 @@ const ALL_QUESTIONS = [
 },
 {
 "id": "2",
+"text": "Jak fungujou tvoje kamarádské vztahy? Jak často se vídáš s lidmi, která strana to často iniciuje, a jakou máš typicky pozici ve skupinkách?",
+"notes": [],
+"category": "deep",
+"categoryName": "Deep"
+},
+{
+"id": "3",
 "text": "Jaké jsou tvoje sexuální fantazie?",
 "notes": [],
 "category": "funky",
 "categoryName": "Funky"
 },
 {
-"id": "3",
+"id": "4",
 "text": "Může vůbec existovat altruismus?",
 "notes": [],
 "category": "funky",
 "categoryName": "Funky"
 },
 {
-"id": "4",
-"text": "Pokud by jsi měl možnost si uložit svět a kdykoliv se vrátit do současného bodu, co bys s tím dělal? Jak by se změnil svět kdyby tuhle možnost měli všichni?",
+"id": "5",
+"text": "Pokud by jsi měla možnost si uložit svět a kdykoliv se vrátit do současného bodu, co bys s tím dělala? Jak by se změnil svět kdyby tuhle možnost měli všichni?",
 "notes": [],
 "category": "funky",
 "categoryName": "Funky"
 },
 {
-"id": "5",
+"id": "6",
+"text": "Je nemorální dělat práci která nepřináší společnosti žádný přímý užitek?",
+"notes": [
+"(Možná by stálo za to přeformulovat, viz. debata o PhD nebo kariéře ve finance :D)"
+],
+"category": "funky",
+"categoryName": "Funky"
+},
+{
+"id": "7",
 "text": "Jak se v čase měnilo tvoje vnímání sebe sama?",
 "notes": [],
 "category": "matej",
@@ -599,8 +648,7 @@ function refreshSelectedQuestionCount() {
 
 function toggleCategory(categoryButton) {
   const isNowChecked = categoryButton.getAttribute("aria-checked") !== "true";
-  categoryButton.setAttribute("aria-checked", String(isNowChecked));
-  categoryButton.querySelector(".category-box").textContent = isNowChecked ? "[×]" : "[ ]";
+  categoryButton.setAttribute("aria-checked", String(isNowChecked));   /* the CSS draws and undraws the mark */
   refreshSelectedQuestionCount();
 }
 

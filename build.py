@@ -113,13 +113,24 @@ def number_the_questions(categories: list[Category]) -> None:
             running_number += 1
 
 
+# The two strokes of the cross, drawn as separate lines so each can be animated on
+# its own. They cross off-centre and the second is the longer of the two, which is
+# what keeps the mark looking drawn rather than typeset.
+HAND_DRAWN_CROSS = (
+    '<svg class="category-mark" viewBox="0 0 10 10" aria-hidden="true">'
+    '<line class="mark-stroke-short" pathLength="1" x1="2.1" y1="2.4" x2="7.9" y2="7.8" />'
+    '<line class="mark-stroke-long" pathLength="1" x1="8.4" y1="1.5" x2="1.4" y2="8.7" />'
+    "</svg>"
+)
+
+
 def render_category_checkboxes(categories: list[Category]) -> str:
     checkbox_rows = []
     for category in categories:
         question_count = len(category.questions)
         checkbox_rows.append(
             f'    <button class="category" role="checkbox" aria-checked="true" data-slug="{escape(category.slug)}">'
-            f'<span class="category-box">[×]</span>'
+            f'<span class="category-box">[{HAND_DRAWN_CROSS}]</span>'
             f'<span class="category-name">{escape(category.name)}</span>'
             f'<span class="category-count">{question_count}</span>'
             f"</button>"
