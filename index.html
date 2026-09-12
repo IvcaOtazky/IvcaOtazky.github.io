@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>7 shades of Ivča</title>
-<meta name="description" content="7 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta name="description" content="7 Ivči otázek">
 <meta property="og:title" content="7 shades of Ivča">
-<meta property="og:description" content="7 otázek pro Ivču. Vyber si kategorie a začni se ptát.">
+<meta property="og:description" content="7 Ivči otázek">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1407,7 +1407,7 @@ function composeProposalEmail() {
   if (email !== "") lines.push("Reply to: " + email);
 
   return {
-    subject: "Nová otázka pro Ivču (" + categoryName + ")",
+    subject: "Nová otázka od Ivči (" + categoryName + ")",
     body: lines.join("\n")
   };
 }
@@ -1425,7 +1425,7 @@ async function relayTheProposal() {
 
   const message = {
     access_key: PROPOSAL_RELAY_ACCESS_KEY,
-    from_name: "Otázky pro Ivču",
+    from_name: "Otázka od Ivči",
     subject: email.subject,
     message: email.body
   };
