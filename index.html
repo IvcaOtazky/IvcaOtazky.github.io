@@ -662,16 +662,79 @@ startButton.addEventListener("click", () => {
   goToQuestion(pool[0].id, selectedCategorySlugs());
 });
 
+/* ------------------------------------------------ a question in an address */
+
+/* Sharing sends the question itself rather than its number: its text, its notes
+   and the name of its category are packed into the address as base64. Question
+   numbers are positional, so a link built from one silently points somewhere
+   else as soon as questions.md is reordered; a link that carries the question
+   needs nothing at all from the list on the page that opens it. */
+
+function encodeQuestionForSharing(question) {
+  const packedQuestion = JSON.stringify([question.text, question.notes, question.categoryName]);
+
+  /* btoa only speaks bytes, and Czech text is not latin-1. */
+  const utf8Bytes = new TextEncoder().encode(packedQuestion);
+  let oneCharacterPerByte = "";
+  utf8Bytes.forEach(byte => { oneCharacterPerByte += String.fromCharCode(byte); });
+
+  /* base64url: "+" and "/" would have to be escaped inside a hash, and the "="
+     padding is pure noise in a link nobody gets to shorten. */
+  return btoa(oneCharacterPerByte).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function decodeSharedQuestion(encodedQuestion) {
+  try {
+    const paddingLength = Math.ceil(encodedQuestion.length / 4) * 4;
+    const standardBase64 = encodedQuestion.replace(/-/g, "+").replace(/_/g, "/").padEnd(paddingLength, "=");
+
+    const oneCharacterPerByte = atob(standardBase64);
+    const utf8Bytes = Uint8Array.from(oneCharacterPerByte, character => character.charCodeAt(0));
+    const [text, notes, categoryName] = JSON.parse(new TextDecoder().decode(utf8Bytes));
+
+    const addressHeldSomethingElse = typeof text !== "string" || !Array.isArray(notes);
+    if (addressHeldSomethingElse) return null;
+
+    /* Shaped like a question from the list, so the reader can show it without
+       knowing where it came from — except that it belongs to no category here,
+       and the flag is what keeps its address from being rewritten as a number. */
+    return {
+      id: "",
+      text: text,
+      notes: notes,
+      category: "",
+      categoryName: typeof categoryName === "string" ? categoryName : "",
+      isASharedQuestion: true
+    };
+  } catch (theAddressWasNotAQuestion) {
+    return null;
+  }
+}
+
 /* ---------------------------------------------------------------- routing */
 
-/* A readable, shareable address: #q=12&c=detstvi,vztahy */
-function writeLocation(questionId, categorySlugs) {
-  const address = "#q=" + questionId + "&c=" + categorySlugs.join(",");
+/* Browsing keeps a readable address — #q=12&c=detstvi,vztahy — while a shared
+   question travels whole, as #s=<base64>. */
+function addressOfQuestionInPool(questionId, categorySlugs) {
+  return "#q=" + questionId + "&c=" + categorySlugs.join(",");
+}
+
+function addressOfSharedQuestion(question) {
+  return "#s=" + encodeQuestionForSharing(question);
+}
+
+function writeLocation(address) {
   if (location.hash !== address) location.hash = address;
 }
 
 function readLocation() {
   const parameters = new URLSearchParams(location.hash.replace(/^#/, ""));
+
+  if (parameters.has("s")) {
+    const sharedQuestion = decodeSharedQuestion(parameters.get("s"));
+    return sharedQuestion === null ? null : { sharedQuestion: sharedQuestion };
+  }
+
   if (!parameters.has("q")) return null;
 
   const requestedCategories = (parameters.get("c") || "").split(",").filter(Boolean);
@@ -686,7 +749,7 @@ function allCategorySlugs() {
 }
 
 function goToQuestion(questionId, categorySlugs) {
-  writeLocation(questionId, categorySlugs);
+  writeLocation(addressOfQuestionInPool(questionId, categorySlugs));
   renderCurrentLocation();
 }
 
@@ -719,7 +782,9 @@ function showQuestionAtPosition(position, travelDirection) {
   if (!question) return;
 
   currentPosition = position;
-  writeLocation(question.id, currentPool.map(item => item.category).filter(uniqueValues));
+  writeLocation(question.isASharedQuestion
+    ? addressOfSharedQuestion(question)
+    : addressOfQuestionInPool(question.id, currentPool.map(item => item.category).filter(uniqueValues)));
 
   questionStage.innerHTML = "";
   const block = document.createElement("div");
@@ -797,7 +862,8 @@ backButton.addEventListener("click", returnToIntro);
 
 async function shareCurrentQuestion() {
   const question = currentPool[currentPosition];
-  const link = location.href;
+  const addressWithoutAHash = location.href.split("#")[0];
+  const link = addressWithoutAHash + addressOfSharedQuestion(question);
 
   if (navigator.share) {
     try {
@@ -857,6 +923,18 @@ function renderCurrentLocation() {
     introPage.hidden = false;
     if (arrivingFromAQuestion) replaceIntroEntranceWithAQuickFade();
     refreshSelectedQuestionCount();
+    return;
+  }
+
+  /* A shared question stands alone: it is the entire pool, which is why the bar
+     below it holds a single dot. Nothing about it belongs to a category here, so
+     the category buttons are left showing whatever the reader last chose. */
+  if (destination.sharedQuestion) {
+    currentPool = [destination.sharedQuestion];
+    currentPosition = 0;
+    introPage.hidden = true;
+    questionPage.hidden = false;
+    showQuestionAtPosition(0, "forward");
     return;
   }
 

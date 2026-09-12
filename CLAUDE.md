@@ -48,10 +48,10 @@ harmless placeholder.
 
 ### Question ids are positional, and links depend on them
 
-`number_the_questions()` numbers questions `1..N` in file order across all categories, and a
-shared link points at that number. **Appending questions is always safe; inserting or
-reordering silently repoints every link already out there.** This is the reason for the
-file-order numbering — preserve it.
+`number_the_questions()` numbers questions `1..N` in file order across all categories, and the
+browsing address is built from that number. Shared links no longer depend on it — they carry
+the question itself — but a number still changes meaning when questions are inserted or
+reordered, so append rather than insert and preserve the file-order numbering.
 
 ### The whole site is one file, and the router is the URL hash
 
@@ -60,11 +60,25 @@ published artifact. Introducing a separate `.css`, `.js`, or image file therefor
 updating `.github/workflows/deploy.yml` too — otherwise it 404s in production while working
 locally. The only external requests are Google Fonts.
 
-Addresses look like `#q=12&c=vztahy,hlouposti` — the question plus the chosen categories.
-`renderCurrentLocation()` is the single entry point: it reads the hash, and either shows the
-intro (`#` empty) or builds the question pool from the category slugs. The two screens are two
-`<main>` elements toggled with the `hidden` property. A shared link pointing at a question
-outside its own `c=` selection widens the pool to every question rather than failing.
+There are two kinds of address. Browsing writes `#q=12&c=vztahy,hlouposti` — the question
+number plus the chosen categories. The share button writes `#s=<base64>`, which holds the
+question's text, notes and category name rather than a pointer into the list, so it survives
+any reordering of `questions.md` and needs nothing from the page it opens on.
+
+`renderCurrentLocation()` is the single entry point: it reads the hash, and shows the intro
+(`#` empty, or an `#s=` payload that does not decode), a pool built from the category slugs,
+or a decoded shared question. The two screens are two `<main>` elements toggled with the
+`hidden` property.
+
+A shared question becomes a one-item `currentPool`, which is what reduces the bottom bar to a
+single dot and disables both arrows; it carries `isASharedQuestion` so that
+`showQuestionAtPosition()` keeps rewriting the `#s=` address instead of a number, and the
+category buttons are left alone because it belongs to no category on this page. A `#q=` link
+pointing at a question outside its own `c=` selection widens the pool to every question rather
+than failing.
+
+The base64 is URL-safe and unpadded, and the payload goes through `TextEncoder` before `btoa`
+because the questions are Czech.
 
 Because routing is hash-based there is no server-side routing and no 404 page to maintain.
 

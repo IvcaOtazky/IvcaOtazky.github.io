@@ -32,8 +32,9 @@ Může to být povaha, ruce, smích i něco, co bys radši vrátila.
 Kdy jsi naposledy někomu odpustila?
 ```
 
-Questions are numbered in file order, and a shared link points at that number —
-so adding questions at the end never breaks links that are already out there.
+Questions are numbered in file order. Nothing shared depends on that number —
+a shared link carries the question itself — but the numbering is what the
+address bar shows while browsing, so keep adding questions at the end.
 
 ## Building locally
 
@@ -49,6 +50,11 @@ One-time setup in the repository: **Settings → Pages → Source → GitHub Act
 
 ## Sharing a question
 
-The address bar carries the current question and the chosen categories, e.g.
-`#q=12&c=vztahy,hlouposti`. The share button uses the native share sheet on
-phones and falls back to copying the link to the clipboard on desktop.
+While browsing, the address bar carries the current question and the chosen
+categories, e.g. `#q=12&c=vztahy,hlouposti`.
+
+The share button builds a different link: `#s=<base64>`, holding the question's
+own text, its notes and its category name. Such a link opens that one question
+and nothing else — the bar below it shows a single dot — and it keeps working
+however `questions.md` is later reordered. The button uses the native share
+sheet on phones and falls back to copying the link to the clipboard on desktop.
