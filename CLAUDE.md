@@ -67,8 +67,15 @@ any reordering of `questions.md` and needs nothing from the page it opens on.
 
 `renderCurrentLocation()` is the single entry point: it reads the hash, and shows the intro
 (`#` empty, or an `#s=` payload that does not decode), a pool built from the category slugs,
-or a decoded shared question. The two screens are two `<main>` elements toggled with the
-`hidden` property.
+or a decoded shared question. The screens are `<main>` elements toggled with the `hidden`
+property.
+
+The proposal form is the exception, and deliberately so: it is a third `<main>`, opened from
+the reader bar's `+` and closed straight back to the question underneath, **without touching
+the hash** — a half-written question is nothing to land on, share or reload into. So
+`renderCurrentLocation()` hides it unconditionally, which keeps the router the only thing that
+decides which screen is up, and the `keydown` handler gives the arrow keys to the form's
+textareas while it is open.
 
 A shared question becomes a one-item `currentPool`, which is what reduces the bottom bar to a
 single dot and disables both arrows; it carries `isASharedQuestion` so that
@@ -79,6 +86,30 @@ than failing.
 
 The base64 is URL-safe and unpadded, and the payload goes through `TextEncoder` before `btoa`
 because the questions are Czech.
+
+### The proposal form sends through a relay
+
+A static file cannot send mail, so `Send` POSTs the message to Web3Forms, which sends it on
+from its own servers — nothing opens on the proposer's device and no address of theirs travels
+unless they typed one. `PROPOSAL_RELAY_ACCESS_KEY` is empty until someone pastes in the key
+mailed by <https://web3forms.com>; it is **not a secret** (it can only send to the one inbox it
+was issued for, and this file is published), so it belongs in `template.html` like any other
+constant.
+
+When the relay cannot be reached — no key yet, offline, a bad day — the form stays put and
+offers a `mailto:` draft as a **link**. It must be a link: the browser refuses to open mail on
+the click that started the request, because awaiting the network outlives the user gesture.
+Setting `location.href` there fails with *"Not allowed to launch … a user gesture is required"*.
+
+A row is marked `is-open` by a click **and** by having any text in it, so a value arriving from
+browser autofill is not left sitting at `opacity: 0`.
+
+Every row is `Label ›` plus one slot holding both the parenthesised comment and the writing
+line: the comment is absolutely positioned so it can fade out from under the words instead of
+shoving them sideways, and the input is always present at `opacity: 0` so opening a row never
+shuffles the rows below it. The question and the note are auto-growing `<textarea>`s (newlines
+allowed); everything else is an `<input>`, which is what keeps it to one line. The form's own
+copy is English, matching `Start ›` and the title — `aria-label`s stay Czech like the rest.
 
 Because routing is hash-based there is no server-side routing and no 404 page to maintain.
 

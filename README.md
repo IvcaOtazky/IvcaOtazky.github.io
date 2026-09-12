@@ -43,6 +43,16 @@ python3 build.py          # regenerates index.html (no dependencies)
 python3 -m http.server    # then open http://localhost:8000
 ```
 
+## Proposing a question
+
+The `+` beside the share icon opens a form: category (one of the existing ones, or a new one),
+the question, an optional note, a name, and an optional email. `Send` posts it to a relay that
+mails it on from its own address, so nothing opens on the sender's device.
+
+This needs an access key from <https://web3forms.com> (free, no account — they mail you a key)
+pasted into `PROPOSAL_RELAY_ACCESS_KEY` in `template.html`. Until then, and whenever the relay
+cannot be reached, the form offers a pre-formatted mail draft instead.
+
 ## Deployment
 
 Push to `main`. The workflow runs `build.py` and publishes the result.

@@ -273,9 +273,16 @@ button {
   color: var(--gray);
   transition: color .25s var(--ease-out), transform .25s var(--ease-out);
 }
+.reader-actions {
+  display: flex;
+  align-items: center;
+  gap: .1rem;
+}
+
 .icon-button:hover { color: var(--ink); }
 .back-button:hover { transform: translateX(-4px); }
 .share-button:hover { transform: translateY(-2px); }
+.propose-button:hover { transform: rotate(90deg); }
 .icon-button svg { display: block; width: 20px; height: 20px; }
 
 .reader-stage {
@@ -390,6 +397,171 @@ button {
 .nav-dot[aria-current="true"]::before { width: 7px; height: 7px; }
 .nav-dot[aria-current="true"].is-milestone::after { font-weight: 500; }
 
+/* ========================================================== proposal page */
+/* The third screen. Every row reads "Label ›" and then either its comment or
+   the line you are writing on — the two share one slot, so the comment can fade
+   out from under the words rather than shoving them sideways. Nothing here has
+   a box, a border or a background: the caret is the only sign of an input. */
+.proposal {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.1rem, 3vw, 2rem);
+  gap: 1rem;
+}
+
+.proposal-form {
+  flex: 1;
+  width: min(34rem, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1rem, 3vh, 1.7rem);
+  padding: clamp(1rem, 4vh, 2.5rem) 0;
+}
+
+.proposal-header {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.5rem, 4.4vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  margin: 0 0 .3rem;
+}
+
+.proposal-field {
+  display: flex;
+  align-items: baseline;
+  gap: .7rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--gray);
+}
+
+.proposal-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .3rem;
+  flex: none;
+  text-align: left;
+  color: var(--gray);
+  transition: color .25s var(--ease-out), transform .25s var(--ease-out);
+}
+button.proposal-label:hover { color: var(--ink); transform: translateX(4px); }
+.proposal-field.is-open > .proposal-label { color: var(--ink); }
+
+.proposal-arrow {
+  display: inline-block;
+  transition: transform .25s var(--ease-out);
+}
+button.proposal-label:hover .proposal-arrow,
+.proposal-choice:hover .proposal-arrow { transform: translateX(3px); }
+
+/* "(optional)" rides above the word it qualifies, quieter than everything. The
+   label is a flex row, and a flex item ignores vertical-align — so <sup> has to
+   be lifted by hand. */
+.proposal-optional {
+  position: relative;
+  top: -.5em;
+  font-size: .58em;
+  color: var(--gray-faint);
+  letter-spacing: .02em;
+}
+
+.proposal-slot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Out of flow, so the writing line below keeps its place while this fades. The
+   line-height is an absolute length: it makes the smaller text sit in the same
+   line box as the input it is layered over. */
+.proposal-comment {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: .82rem;
+  line-height: 1.6rem;
+  font-style: italic;
+  color: var(--gray-faint);
+  pointer-events: none;
+  transition: opacity .35s var(--ease-out);
+}
+.proposal-field.is-open .proposal-comment { opacity: 0; }
+
+/* Invisible until its row is opened, but never removed — the row keeps its
+   height either way, so opening one does not shuffle the ones below it. */
+.proposal-input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  font: inherit;
+  line-height: inherit;
+  color: var(--ink);
+  caret-color: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s var(--ease-out);
+}
+.proposal-field.is-open .proposal-input { opacity: 1; pointer-events: auto; }
+
+/* --- the category line ---------------------------------------------------- */
+.proposal-choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  flex: 1;
+  gap: .1rem 1rem;
+}
+
+.proposal-choice {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .3rem;
+  color: var(--gray);
+  transition: color .25s var(--ease-out), transform .25s var(--ease-out);
+}
+.proposal-choice:hover { color: var(--ink); transform: translateX(3px); }
+.proposal-choice[aria-pressed="true"] { color: var(--ink); }
+
+/* The new category writes itself on the same line, once there is room for it. */
+.proposal-new-category { flex: 1 0 9rem; }
+
+/* --- what the form has to say back ---------------------------------------- */
+.proposal-problem {
+  font-size: .82rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  padding-left: .2rem;
+  margin: 0;
+}
+
+.proposal-problem a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: .18em;
+  text-decoration-thickness: 1px;
+}
+
+.proposal-send { align-self: flex-start; }
+
+@media (max-width: 30rem) {
+  /* Too little width to keep the label and the writing line on one row. */
+  .proposal-field { flex-wrap: wrap; gap: .1rem .7rem; }
+  .proposal-slot { flex-basis: 100%; }
+}
+
 /* --- copied-link toast ---------------------------------------------------- */
 .toast {
   position: fixed;
@@ -460,14 +632,21 @@ button {
         <path d="M15 5l-7 7 7 7"/>
       </svg>
     </button>
-    <button class="icon-button share-button" id="share-button" aria-label="Sdílet odkaz na tuto otázku">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="18" cy="5" r="2.6"/>
-        <circle cx="6" cy="12" r="2.6"/>
-        <circle cx="18" cy="19" r="2.6"/>
-        <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/>
-      </svg>
-    </button>
+    <div class="reader-actions">
+      <button class="icon-button share-button" id="share-button" aria-label="Sdílet odkaz na tuto otázku">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="2.6"/>
+          <circle cx="6" cy="12" r="2.6"/>
+          <circle cx="18" cy="19" r="2.6"/>
+          <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/>
+        </svg>
+      </button>
+      <button class="icon-button propose-button" id="propose-button" aria-label="Navrhnout novou otázku">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5.5v13M5.5 12h13"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <div class="reader-stage" id="question-stage" aria-live="polite"></div>
@@ -485,6 +664,71 @@ button {
       </svg>
     </button>
   </nav>
+
+</main>
+
+<!-- ========================================================= proposal page -->
+<main class="proposal" id="proposal-page" hidden>
+
+  <div class="reader-bar">
+    <button class="icon-button back-button" id="proposal-back-button" aria-label="Zpět na otázku">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7"/>
+      </svg>
+    </button>
+  </div>
+
+  <form class="proposal-form" id="proposal-form" novalidate>
+
+    <h2 class="proposal-header">Propose a new question:</h2>
+
+    <div class="proposal-field" id="category-field">
+      <span class="proposal-label">Category <span class="proposal-arrow">&rsaquo;</span></span>
+      <div class="proposal-choices" id="category-choices">
+        <!-- the site's own categories are written in here on load, ahead of "New" -->
+        <button type="button" class="proposal-choice new-category-choice" id="new-category-button" aria-pressed="false">New <span class="proposal-arrow">&rsaquo;</span></button>
+        <input class="proposal-input proposal-new-category" id="new-category-input" type="text" autocomplete="off" aria-label="Název nové kategorie" hidden>
+      </div>
+    </div>
+
+    <div class="proposal-field" id="question-field">
+      <button type="button" class="proposal-label">Question <span class="proposal-arrow">&rsaquo;</span></button>
+      <div class="proposal-slot">
+        <span class="proposal-comment">(ask anything)</span>
+        <textarea class="proposal-input" id="question-input" rows="1" aria-label="Otázka"></textarea>
+      </div>
+    </div>
+
+    <div class="proposal-field" id="note-field">
+      <button type="button" class="proposal-label">Note <span class="proposal-arrow">&rsaquo;</span></button>
+      <div class="proposal-slot">
+        <span class="proposal-comment">(anything worth adding underneath)</span>
+        <textarea class="proposal-input" id="note-input" rows="1" aria-label="Poznámka"></textarea>
+      </div>
+    </div>
+
+    <div class="proposal-field" id="name-field">
+      <button type="button" class="proposal-label">Name <span class="proposal-arrow">&rsaquo;</span></button>
+      <div class="proposal-slot">
+        <span class="proposal-comment">(so I can give you credit)</span>
+        <input class="proposal-input" id="name-input" type="text" autocomplete="name" aria-label="Jméno">
+      </div>
+    </div>
+
+    <div class="proposal-field" id="email-field">
+      <button type="button" class="proposal-label">Email<sup class="proposal-optional">(optional)</sup> <span class="proposal-arrow">&rsaquo;</span></button>
+      <div class="proposal-slot">
+        <span class="proposal-comment">(if you want to know whether it gets accepted)</span>
+        <input class="proposal-input" id="email-input" type="email" autocomplete="email" aria-label="E-mail">
+      </div>
+    </div>
+
+    <p class="proposal-problem" id="email-problem" hidden>That address doesn't look quite right.</p>
+    <p class="proposal-problem" id="send-problem" hidden>Couldn't send it from here — <a id="mail-draft-link" href="mailto:">open it in your mail app</a> instead.</p>
+
+    <button class="start proposal-send" id="send-button" type="submit" disabled><span id="send-button-label">Send</span> <span class="start-arrow">&rsaquo;</span></button>
+
+  </form>
 
 </main>
 
@@ -838,9 +1082,320 @@ function showToast(message) {
 
 shareButton.addEventListener("click", shareCurrentQuestion);
 
+/* ------------------------------------------------- proposing a question */
+
+/* The form is a third screen rather than an address of its own: a half-written
+   question is nothing anyone would want to land on, share or reload into, so
+   opening it leaves the hash — and the question underneath — exactly as it was.
+
+   A static file cannot send mail on its own, so Send posts the finished message
+   to a relay that sends it onwards — from the relay's own address, without
+   anything opening on the proposer's device. The mailto below is what is left
+   when that cannot be reached. */
+
+/* Paste the access key mailed by <https://web3forms.com> here — until then every
+   proposal falls back to the mail draft. The key is not a secret: it can only be
+   used to send to the inbox it was issued for, and this file is published. */
+const PROPOSAL_RELAY = "https://api.web3forms.com/submit";
+const PROPOSAL_RELAY_ACCESS_KEY = "c5b4d20a-3514-4c5a-9839-cdd6a58385d1";
+
+const PROPOSALS_ARE_SENT_TO = "mrazekmates@gmail.com";
+
+const proposalPage       = document.getElementById("proposal-page");
+const proposalForm       = document.getElementById("proposal-form");
+const proposeButton      = document.getElementById("propose-button");
+const proposalBackButton = document.getElementById("proposal-back-button");
+const categoryField      = document.getElementById("category-field");
+const categoryChoices    = document.getElementById("category-choices");
+const newCategoryButton  = document.getElementById("new-category-button");
+const newCategoryInput   = document.getElementById("new-category-input");
+const questionInput      = document.getElementById("question-input");
+const noteInput          = document.getElementById("note-input");
+const nameInput          = document.getElementById("name-input");
+const emailInput         = document.getElementById("email-input");
+const emailProblem       = document.getElementById("email-problem");
+const sendButton         = document.getElementById("send-button");
+const sendButtonLabel    = document.getElementById("send-button-label");
+const sendProblem        = document.getElementById("send-problem");
+const mailDraftLink      = document.getElementById("mail-draft-link");
+
+function openProposalForm() {
+  questionPage.hidden = true;
+  proposalPage.hidden = false;
+  openEveryRowThatHasWordsInIt();
+}
+
+function closeProposalForm() {
+  proposalPage.hidden = true;
+  questionPage.hidden = false;
+}
+
+proposeButton.addEventListener("click", openProposalForm);
+proposalBackButton.addEventListener("click", closeProposalForm);
+
+/* --- opening a row ------------------------------------------------------- */
+
+/* A row opens on the first click anywhere along it and stays open: its comment
+   has already had its say, and taking it back would only flicker. */
+const writableFields = Array.from(proposalForm.querySelectorAll(".proposal-field"))
+  .filter(field => field.querySelector(".proposal-slot"));
+
+writableFields.forEach(field => {
+  const writingLine = field.querySelector(".proposal-input");
+  field.addEventListener("click", () => {
+    field.classList.add("is-open");
+
+    /* Clicking the words already written there is how you place the caret in
+       them — taking the focus again would only drag it back to the end. */
+    const theCaretIsAlreadyThere = document.activeElement === writingLine;
+    if (!theCaretIsAlreadyThere) writingLine.focus();
+  });
+});
+
+/* --- the category line --------------------------------------------------- */
+
+/* The form offers the categories the site is built from, plus room for one it
+   has never heard of. */
+function offerTheSiteSOwnCategories() {
+  categoryButtons.forEach(categoryButton => {
+    const choice = document.createElement("button");
+    choice.type = "button";
+    choice.className = "proposal-choice";
+    choice.setAttribute("aria-pressed", "false");
+    choice.textContent = categoryButton.querySelector(".category-name").textContent;
+    choice.addEventListener("click", () => chooseExistingCategory(choice));
+    categoryChoices.insertBefore(choice, newCategoryButton);
+  });
+}
+
+function everyCategoryControl() {
+  return Array.from(categoryChoices.querySelectorAll(".proposal-choice"));
+}
+
+/* One category at a time: picking an existing one puts the new-category line
+   away, and starting a new one lets go of whichever was picked. */
+function markTheChosenCategory(chosenControl) {
+  everyCategoryControl().forEach(control => {
+    control.setAttribute("aria-pressed", String(control === chosenControl));
+  });
+  categoryField.classList.add("is-open");
+}
+
+function chooseExistingCategory(choice) {
+  markTheChosenCategory(choice);
+  newCategoryInput.value = "";
+  newCategoryInput.hidden = true;
+  theFormWasEdited();
+}
+
+function startANewCategory() {
+  markTheChosenCategory(newCategoryButton);
+  newCategoryInput.hidden = false;
+  newCategoryInput.focus();
+  theFormWasEdited();
+}
+
+function chosenCategoryName() {
+  const aNewOneIsBeingWritten = newCategoryButton.getAttribute("aria-pressed") === "true";
+  if (aNewOneIsBeingWritten) return newCategoryInput.value.trim();
+
+  const pickedChoice = everyCategoryControl()
+    .find(control => control !== newCategoryButton && control.getAttribute("aria-pressed") === "true");
+  return pickedChoice ? pickedChoice.textContent : "";
+}
+
+newCategoryButton.addEventListener("click", startANewCategory);
+offerTheSiteSOwnCategories();
+
+/* --- writing ------------------------------------------------------------- */
+
+/* The writing line has no box to scroll inside, so it grows to fit instead.
+   Only the question and the note are written this way — a name, an address or a
+   category is one line by construction, which is why the rest are <input>s. */
+function growToFitTheText(textarea) {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}
+
+[questionInput, noteInput].forEach(textarea => {
+  textarea.addEventListener("input", () => growToFitTheText(textarea));
+});
+
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function theEmailIsUsable() {
+  const typedAddress = emailInput.value.trim();
+  const itWasLeftOut = typedAddress === "";
+  return itWasLeftOut || EMAIL_SHAPE.test(typedAddress);
+}
+
+/* Send lights up the way Start does on the intro: only once there is something
+   worth sending. The note is the one part nobody has to write. */
+function refreshSendButton() {
+  const theProposalIsComplete =
+    chosenCategoryName() !== "" &&
+    questionInput.value.trim() !== "" &&
+    nameInput.value.trim() !== "";
+
+  sendButton.disabled = !(theProposalIsComplete && theEmailIsUsable());
+}
+
+/* Anything the writer changes is a fresh attempt: whatever the last one had to
+   say about itself no longer applies. */
+function theFormWasEdited() {
+  sendProblem.hidden = true;
+  openEveryRowThatHasWordsInIt();
+  refreshSendButton();
+}
+
+/* Words can also arrive in a row nobody opened — a browser filling in a name or
+   an address it remembers. A row with something in it is an open row, or the
+   writing would sit there at nought opacity where no one can see it. */
+function openEveryRowThatHasWordsInIt() {
+  writableFields.forEach(field => {
+    const writingLine = field.querySelector(".proposal-input");
+    if (writingLine.value !== "") field.classList.add("is-open");
+  });
+}
+
+[newCategoryInput, questionInput, noteInput, nameInput].forEach(field => {
+  field.addEventListener("input", theFormWasEdited);
+});
+
+/* Complaining about a half-typed address while it is still being typed would be
+   nagging, so the address is only judged once it has been left alone. */
+emailInput.addEventListener("input", () => {
+  emailProblem.hidden = true;
+  theFormWasEdited();
+});
+emailInput.addEventListener("blur", () => {
+  emailProblem.hidden = theEmailIsUsable();
+});
+
+/* --- sending ------------------------------------------------------------- */
+
+function composeProposalEmail() {
+  const categoryName = chosenCategoryName();
+
+  const lines = ["Category: " + categoryName, "", "Question:", questionInput.value.trim()];
+
+  const note = noteInput.value.trim();
+  if (note !== "") lines.push("", "Note:", note);
+
+  lines.push("", "Proposed by: " + nameInput.value.trim());
+
+  const email = emailInput.value.trim();
+  if (email !== "") lines.push("Reply to: " + email);
+
+  return {
+    subject: "Nová otázka pro Ivču (" + categoryName + ")",
+    body: lines.join("\n")
+  };
+}
+
+/* The relay posts the message on from its own servers, which is the whole point
+   of it: nothing opens on the proposer's device, and the only address of theirs
+   that travels is the one they chose to type. Its access key belongs in public
+   page source — it can do nothing but send to the one inbox it was issued for. */
+async function relayTheProposal() {
+  const thereIsNowhereToRelayThrough = PROPOSAL_RELAY_ACCESS_KEY === "";
+  if (thereIsNowhereToRelayThrough) return false;
+
+  const email = composeProposalEmail();
+  const proposerEmail = emailInput.value.trim();
+
+  const message = {
+    access_key: PROPOSAL_RELAY_ACCESS_KEY,
+    from_name: "Otázky pro Ivču",
+    subject: email.subject,
+    message: email.body
+  };
+
+  /* Sent only when it was given: it becomes the Reply-To of what arrives, and
+     the relay rejects the whole submission over an empty one. */
+  if (proposerEmail !== "") message.email = proposerEmail;
+
+  const response = await fetch(PROPOSAL_RELAY, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(message)
+  });
+
+  const outcome = await response.json().catch(() => ({}));
+  return response.ok && outcome.success === true;
+}
+
+function mailtoDraftOfTheProposal() {
+  const email = composeProposalEmail();
+  return "mailto:" + PROPOSALS_ARE_SENT_TO
+    + "?subject=" + encodeURIComponent(email.subject)
+    + "&body=" + encodeURIComponent(email.body);
+}
+
+/* Back to an empty form, so a second question does not start inside the first. */
+function forgetTheWrittenProposal() {
+  [newCategoryInput, questionInput, noteInput, nameInput, emailInput].forEach(field => {
+    field.value = "";
+  });
+  [questionInput, noteInput].forEach(growToFitTheText);
+
+  everyCategoryControl().forEach(control => control.setAttribute("aria-pressed", "false"));
+  newCategoryInput.hidden = true;
+  emailProblem.hidden = true;
+  sendProblem.hidden = true;
+
+  Array.from(proposalForm.querySelectorAll(".proposal-field")).forEach(field => {
+    field.classList.remove("is-open");
+  });
+  refreshSendButton();
+}
+
+let aProposalIsOnItsWay = false;
+
+async function sendProposal() {
+  if (sendButton.disabled || aProposalIsOnItsWay) return;
+
+  aProposalIsOnItsWay = true;
+  sendButton.disabled = true;
+  sendProblem.hidden = true;
+  sendButtonLabel.textContent = "Sending";
+
+  try {
+    const itWentThrough = await relayTheProposal();
+    if (!itWentThrough) throw new Error("the relay would not take it");
+
+    forgetTheWrittenProposal();
+    closeProposalForm();
+    showToast("Thank you — your question is on its way.");
+  } catch (theRelayCouldNotBeReached) {
+    /* Offline, or no key yet, or the relay having a bad day. Nothing is lost —
+       the words are all still on the screen, and the device's own mail is one
+       click away. It has to be a click of its own: a browser will not open mail
+       on a gesture as old as the one that started this request. */
+    mailDraftLink.href = mailtoDraftOfTheProposal();
+    sendProblem.hidden = false;
+    showToast("Couldn't send it from here.");
+  } finally {
+    aProposalIsOnItsWay = false;
+    sendButtonLabel.textContent = "Send";
+    refreshSendButton();
+  }
+}
+
+proposalForm.addEventListener("submit", event => {
+  event.preventDefault();
+  sendProposal();
+});
+
 /* -------------------------------------------------------- keyboard & swipe */
 
 document.addEventListener("keydown", event => {
+  /* While the form is up the arrow keys belong to the words being written. */
+  if (!proposalPage.hidden) {
+    if (event.key === "Escape") closeProposalForm();
+    return;
+  }
+
   if (questionPage.hidden) return;
   if (event.key === "ArrowRight") stepBy(+1);
   if (event.key === "ArrowLeft")  stepBy(-1);
@@ -862,6 +1417,7 @@ questionPage.addEventListener("touchend", event => {
 
 function renderCurrentLocation() {
   const destination = readLocation();
+  proposalPage.hidden = true;      /* the address never points at the form */
 
   if (destination === null) {
     const arrivingFromAQuestion = !questionPage.hidden;
