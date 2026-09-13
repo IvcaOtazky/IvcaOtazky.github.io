@@ -3,6 +3,8 @@ Sníš často během dne? Pokud ano, o čem?
 
 Jak fungujou tvoje kamarádské vztahy? Jak často se vídáš s lidmi, která strana to často iniciuje, a jakou máš typicky pozici ve skupinkách? 
 
+Když bys mohla změnit jednu věc ze svojí výchovy v rodině, co by to bylo?
+
 # Funky
 Jaké jsou tvoje sexuální fantazie?
 
