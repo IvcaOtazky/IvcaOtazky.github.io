@@ -5,6 +5,8 @@ Jak fungujou tvoje kamarádské vztahy? Jak často se vídáš s lidmi, která s
 
 Když bys mohla změnit jednu věc ze svojí výchovy v rodině, co by to bylo?
 
+Za předpokladu že ti zůstanou všechny hodnoty a nastavení co máš a měla bys možnost změnit libovolnou svoji vlastnost, jaká by to byla?
+
 # Funky
 Jaké jsou tvoje sexuální fantazie?
 
