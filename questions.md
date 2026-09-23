@@ -9,19 +9,19 @@ Za předpokladu že ti zůstanou všechny hodnoty a nastavení co máš a měla 
 
 Povedlo se ti někdy na někoho být naštvaná? Pokud ano, kdy se ti to naposledy stalo a proč?
 
-Kdyby tě teď vidělo tvoje mladší já před pěti lety, co by si pomyslelo? A co bys chtěl vidět u sebe za pět let?
+Kdyby tě teď vidělo tvoje mladší já, co by si pomyslelo? A co bys u sebe chtěla vidět za pár let?
 
 Kdyby sis měla možnost vybrat, jestli se v následujícím roce do někoho zamiluješ, co by sis vybrala? Pokud ano, do koho?
 
-Kdyby se ti teď narodilo dítě s někým koho máš rád, jaký bys byl rodič?
+Kdyby se ti teď narodilo dítě s někým koho máš rád, jaký bys byla rodič?
 
 Mají některé tvoje skupinky kamarádů styl humoru nebo zábavy který ti občas nesedí? S kým a kdy jsi podobnou situaci naposled zažila?
 
-Je nějaký názor nebo chování se kterým se setkáváš u svých kamarádů ale víš že bys ho nikdy nemohla mít ve vztahu?
-
-Dokážeš si představit že bys založil vlastní firmu a měl pod sebou několik zaměstnanců? Pokud ano, co by dělala?
+Dokážeš si představit že bys založila vlastní firmu a měla pod sebou několik zaměstnanců? Pokud ano, co by dělala?
 
 Dokázala by jsi jít do politiky?
+
+Je nějaký názor nebo chování se kterým se setkáváš u svých kamarádů ale víš že bys ho nikdy nemohla mít ve vztahu?
 
 Co vnímáš jako těžší - zažít odmítnutí, nebo odmítnout někoho, na kom ti záleží?
 
